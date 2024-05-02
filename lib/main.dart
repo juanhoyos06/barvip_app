@@ -23,7 +23,7 @@ class MainApp extends StatelessWidget {
           colorSchemeSeed: Colors.white),
       home: Scaffold(
         body: Center(
-          child: RegisterPage(),
+          child: LobbyPage(),
         ),
       ),
     );

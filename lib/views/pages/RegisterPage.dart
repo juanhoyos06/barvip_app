@@ -154,7 +154,7 @@ class _RegisterPageState extends State<RegisterPage> {
               return TextFormField(
                 style: const TextStyle(color: Colors.white),
                 controller: controller,
-                validator: baseController.validateField,
+                validator: (value) => baseController.validateFieldAndPassword(value, passwordController),
                 obscureText: _obscureText,
                 decoration: InputDecoration(
                   labelText: labelText,
@@ -219,6 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     focusedBorder: UnderlineInputBorder(
                       borderSide: BorderSide(color: Colors.white),
                     ),
+                    
                   ),
                   // Agrega un hint al DropdownButton
                   value: dropdownValue,

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -26,4 +27,14 @@ class BaseController {
   String? validateField(value) {
     return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
   }
-}
+
+   String? validateFieldAndPassword(String? value, TextEditingController passwordController) {
+    if (value == null || value.isEmpty) {
+      return 'Este campo no puede estar vacío';
+    }
+    if (value != passwordController.text) {
+      return 'Las contraseñas no coinciden';
+    }
+    return null;
+  }
+  }

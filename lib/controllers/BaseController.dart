@@ -7,6 +7,10 @@ class BaseController {
 
   BaseController(this.collection);
 
+  BaseController.empty({
+    this.collection=""
+  });
+
   saveData(Map<String, dynamic> data) async {
     try {
       return db.collection(collection).add(data).toString();

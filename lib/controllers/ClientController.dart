@@ -16,6 +16,7 @@ class ClientController extends BaseController {
   Future<void> updateClient(Client client, String id) async {
     await updateData(client.toMap(), id);
   }
+  
 }
 
 

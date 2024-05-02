@@ -1,4 +1,5 @@
 import 'package:barvip_app/views/pages/LobbyPage.dart';
+import 'package:barvip_app/views/pages/RegisterPage.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,7 +23,7 @@ class MainApp extends StatelessWidget {
           colorSchemeSeed: Colors.white),
       home: Scaffold(
         body: Center(
-          child: LobbyPage(),
+          child: RegisterPage(),
         ),
       ),
     );

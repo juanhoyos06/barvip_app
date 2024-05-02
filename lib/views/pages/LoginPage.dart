@@ -1,4 +1,7 @@
+import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
+import 'package:barvip_app/views/pages/RegisterPage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -24,39 +27,93 @@ class _LoginPageState extends State<LoginPage> {
             vertical: MediaQuery.of(context).size.height * 0.1),
         child: Column(
           mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-                height: 40,
-                width: 40,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(100),
-                  color: Color.fromARGB(255, 28, 33, 39),
+            Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                    height: 40,
+                    width: 40,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color: MyColors.TextInputColor,
+                    ),
+                    child: IconButton(
+                        iconSize: 20,
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => LobbyPage(),
+                          ));
+                        },
+                        icon: const Icon(
+                          Icons.keyboard_arrow_left,
+                          color: Colors.white,
+                        ))),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                  child: Text(
+                    'Sign In',
+                    style: GoogleFonts.sora(
+                        color: Colors.white,
+                        fontSize: 42,
+                        fontWeight: FontWeight.w500,
+                        letterSpacing: 0),
+                  ),
                 ),
-                child: IconButton(
-                    iconSize: 20,
-                    onPressed: () {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => LobbyPage(),
-                      ));
-                    },
-                    icon: const Icon(
-                      Icons.keyboard_arrow_left,
-                      color: Colors.white,
-                    ))),
-            Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-              child: Text(
-                'Sign In',
-                style: GoogleFonts.sora(
-                    color: Colors.white,
-                    fontSize: 42,
-                    fontWeight: FontWeight.w500,
-                    letterSpacing: 0),
+                Form(child: FormWidgets())
+              ],
+            ),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.end,
+                mainAxisSize: MainAxisSize.max,
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(
+                        color: MyColors.TextInputColor,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(10),
+                        )),
+                    width: double.infinity,
+                    height: MediaQuery.of(context).size.height * 0.13,
+                    child: Column(
+                      children: [
+                        TextButton(
+                            onPressed: () {},
+                            child: Text(
+                              'Don\'t have an account yet?',
+                              style: TextStyle(color: MyColors.SecondaryColor),
+                            )),
+                        OutlinedButton(
+                            style: ButtonStyle(
+                              side: MaterialStateProperty.all(
+                                  BorderSide(color: MyColors.ButtonColor)),
+                              minimumSize: MaterialStateProperty.all(Size(
+                                  MediaQuery.of(context).size.width * 0.8, 40)),
+                              backgroundColor: MaterialStateProperty.all(
+                                  MyColors.ButtonColor),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                builder: (context) => RegisterPage(),
+                              ));
+                            },
+                            child: Text(
+                              'Create Account',
+                              style: GoogleFonts.inter(
+                                  color: Colors.white,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  letterSpacing: 0),
+                            ))
+                      ],
+                    ),
+                  )
+                ],
               ),
             ),
-            Form(child: FormWidgets())
           ],
         ),
       ),
@@ -140,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
             letterSpacing: 0),
       ),
       style: ElevatedButton.styleFrom(
-        backgroundColor: Color(0xFFD9AD26),
+        backgroundColor: MyColors.ButtonColor,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
         ),
@@ -160,9 +217,9 @@ class _LoginPageState extends State<LoginPage> {
             },
             icon: Icon(
               _passwordVisible ? Icons.visibility_off : Icons.visibility,
-              color: const Color.fromARGB(255, 153, 150, 150),
+              color: MyColors.SecondaryColor,
             )),
-        fillColor: Color.fromARGB(255, 28, 33, 39),
+        fillColor: MyColors.TextInputColor,
         filled: true,
         enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(
@@ -186,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
   TextFormField EmailTextFormField() {
     return TextFormField(
       decoration: InputDecoration(
-        fillColor: Color.fromARGB(255, 28, 33, 39),
+        fillColor: MyColors.TextInputColor,
         filled: true,
         enabledBorder: OutlineInputBorder(
             borderSide: const BorderSide(

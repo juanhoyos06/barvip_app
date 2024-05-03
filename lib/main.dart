@@ -18,6 +18,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      color: Colors.white,
       theme: ThemeData(
           textTheme: GoogleFonts.soraTextTheme(),
           colorSchemeSeed: Colors.white),

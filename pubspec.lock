@@ -93,10 +93,17 @@ packages:
     dependency: transitive
     description:
       name: ffi
+<<<<<<< HEAD
       sha256: "7bf0adc28a23d395f19f3f1eb21dd7cfd1dd9f8e1c50051c069122e6853bc878"
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+=======
+      sha256: "493f37e7df1804778ff3a53bd691d8692ddf69702cf4c1c1096a2e41b4779e21"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.2"
+>>>>>>> a932a74c1695cc5702cab6ee3928ff448441a7b0
   firebase_core:
     dependency: "direct main"
     description:
@@ -215,7 +222,11 @@ packages:
       sha256: "8829d8a55c13fc0e37127c29fedf290c102f4e40ae94ada574091fe0ff96c917"
       url: "https://pub.dev"
     source: hosted
+<<<<<<< HEAD
     version: "1.8.3"
+=======
+    version: "1.9.0"
+>>>>>>> a932a74c1695cc5702cab6ee3928ff448441a7b0
   path_provider:
     dependency: transitive
     description:
@@ -361,10 +372,17 @@ packages:
     dependency: transitive
     description:
       name: win32
+<<<<<<< HEAD
       sha256: "464f5674532865248444b4c3daca12bd9bf2d7c47f759ce2617986e7229494a8"
       url: "https://pub.dev"
     source: hosted
     version: "5.2.0"
+=======
+      sha256: "0eaf06e3446824099858367950a813472af675116bf63f008a4c2a75ae13e9cb"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.5.0"
+>>>>>>> a932a74c1695cc5702cab6ee3928ff448441a7b0
   xdg_directories:
     dependency: transitive
     description:
@@ -374,5 +392,9 @@ packages:
     source: hosted
     version: "1.0.4"
 sdks:
+<<<<<<< HEAD
   dart: ">=3.2.6 <4.0.0"
+=======
+  dart: ">=3.3.0 <4.0.0"
+>>>>>>> a932a74c1695cc5702cab6ee3928ff448441a7b0
   flutter: ">=3.16.0"

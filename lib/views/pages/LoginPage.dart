@@ -194,15 +194,25 @@ class _LoginPageState extends State<LoginPage> {
 
   ElevatedButton SignInButton() {
     return ElevatedButton(
-      onPressed: () {
+      onPressed: () async {
         // Se valida el email y la contrasena ingresada
         String? validationResult = _baseController.validateFieldLogin(
             _emailController.text, _passwordController.text);
         //Si validation result es null, quiere decir que los campos estan correctamente diligenciados
 
         if (validationResult == null) {
-          _baseController.loginFirebase(
+          bool userFound = await _baseController.loginFirebase(
               _emailController.text, _passwordController.text, context);
+          print('Este es userFound ${userFound}');
+          if (!userFound) {
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  'Usuario no encontrado',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                )));
+          }
         } else {
           //si no, se muestra un snackbar con el mensaje de error, correspondiente.
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(

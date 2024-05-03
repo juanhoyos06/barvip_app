@@ -1,4 +1,7 @@
+import 'package:barvip_app/controllers/BaseController.dart';
+
 import 'package:barvip_app/utils/MyColors.dart';
+
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/pages/RegisterPage.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,6 +18,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _passwordVisible = true;
+  BaseController _baseController = BaseController();
+  TextEditingController _emailController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
                         letterSpacing: 0),
                   ),
                 ),
-                Form(child: FormWidgets())
+                Form(key: _formKey, child: FormWidgets())
               ],
             ),
             Expanded(
@@ -187,7 +194,26 @@ class _LoginPageState extends State<LoginPage> {
 
   ElevatedButton SignInButton() {
     return ElevatedButton(
-      onPressed: () {},
+      onPressed: () {
+        // Se valida el email y la contrasena ingresada
+        String? validationResult = _baseController.validateFieldLogin(
+            _emailController.text, _passwordController.text);
+        //Si validation result es null, quiere decir que los campos estan correctamente diligenciados
+
+        if (validationResult == null) {
+          _baseController.loginFirebase(
+              _emailController.text, _passwordController.text, context);
+        } else {
+          //si no, se muestra un snackbar con el mensaje de error, correspondiente.
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(
+                validationResult,
+                textAlign: TextAlign.center,
+                style: TextStyle(fontWeight: FontWeight.w700),
+              )));
+        }
+      },
       child: Text(
         'Sign In',
         style: GoogleFonts.inter(
@@ -207,6 +233,7 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField PasswordTextFormField() {
     return TextFormField(
+      controller: _passwordController,
       obscureText: _passwordVisible,
       decoration: InputDecoration(
         suffixIcon: IconButton(
@@ -242,6 +269,7 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField EmailTextFormField() {
     return TextFormField(
+      controller: _emailController,
       decoration: InputDecoration(
         fillColor: MyColors.TextInputColor,
         filled: true,

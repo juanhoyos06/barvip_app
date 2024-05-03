@@ -4,6 +4,7 @@ class Client {
   late String email;
   late String password;
   late String confirmPassword;
+  late String typeUser;
   late bool active;
 
   Client(
@@ -12,7 +13,8 @@ class Client {
       required this.email,
       required this.password,
       required this.confirmPassword,
-      this.active = true});
+      this.active = true,
+      required this.typeUser});
 
   Client.empty() {
     name = "";
@@ -23,14 +25,27 @@ class Client {
     active = true;
   }
 
-  toMap() {
+  //De Json a Mapa
+  Map<String, dynamic> toJson() {
     return {
       'name': name,
       'lasName': lastName,
       'email': email,
       'password': password,
       'confirmPassword': confirmPassword,
-      'active': true
+      'active': true,
+      'typeUser': typeUser
     };
+  }
+
+  // De Mapa a Json
+  fromJson(Map<String, dynamic> json) {
+    name = json['name'];
+    lastName = json['lastName'];
+    email = json['email'];
+    password = json['password'];
+    confirmPassword = json['confirmPassword'];
+    active = json['active'];
+    typeUser = json['typeUser'];
   }
 }

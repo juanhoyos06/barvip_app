@@ -10,10 +10,10 @@ class BarberController extends BaseController {
   BarberController() : super(collection);
 
   Future<String> saveBarber(Barber barber) async {
-    return await saveData(barber.toMap());
+    return await saveData(barber.toJson());
   }
 
   Future<void> updateBarber(Barber barber, String id) async {
-    await updateData(barber.toMap(), id);
+    await updateData(barber.toJson(), id);
   }
 }

@@ -3,25 +3,25 @@ class Client {
   late String lastName;
   late String email;
   late String password;
-  late String confirmPassword;
   late String typeUser;
   late bool active;
+  late String urlImage;
+  late int id;
 
   Client(
       {required this.name,
       required this.lastName,
       required this.email,
       required this.password,
-      required this.confirmPassword,
       this.active = true,
-      required this.typeUser});
+      required this.typeUser,
+      required this.urlImage});
 
   Client.empty() {
     name = "";
     lastName = "";
     email = "";
     password = "";
-    confirmPassword = "";
     active = true;
   }
 
@@ -32,9 +32,9 @@ class Client {
       'lasName': lastName,
       'email': email,
       'password': password,
-      'confirmPassword': confirmPassword,
       'active': true,
-      'typeUser': typeUser
+      'typeUser': typeUser,
+      'urlImage': urlImage
     };
   }
 
@@ -44,8 +44,9 @@ class Client {
     lastName = json['lastName'];
     email = json['email'];
     password = json['password'];
-    confirmPassword = json['confirmPassword'];
     active = json['active'];
     typeUser = json['typeUser'];
+    urlImage= json['urlImage'];
+    
   }
 }

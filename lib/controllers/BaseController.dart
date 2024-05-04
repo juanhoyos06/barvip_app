@@ -76,8 +76,8 @@ class BaseController {
         lastName: doc['lastName'],
         email: doc['email'],
         password: doc['password'],
-        confirmPassword: doc['confirmPassword'],
         typeUser: doc['typeUser'],
+        urlImage: doc['urlImage']
       );
     }).toList();
 
@@ -92,8 +92,8 @@ class BaseController {
         lastName: doc['lastName'],
         email: doc['email'],
         password: doc['password'],
-        confirmPassword: doc['confirmPassword'],
         typeUser: doc['typeUser'],
+        urlImage: doc['urlImage'],
       );
     }).toList();
 

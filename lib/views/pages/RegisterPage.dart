@@ -1,7 +1,11 @@
+// ignore_for_file: unrelated_type_equality_checks
+
 import 'dart:ffi';
 import 'dart:io';
 
 import 'package:barvip_app/controllers/BaseController.dart';
+import 'package:barvip_app/models/Barber.dart';
+import 'package:barvip_app/models/Client.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -21,11 +25,12 @@ class _RegisterPageState extends State<RegisterPage> {
   ValueNotifier<bool> passwordObscureTextNotifier = ValueNotifier(true);
   ValueNotifier<bool> confirmPasswordObscureTextNotifier = ValueNotifier(true);
 
-  final dropdownController = TextEditingController();
+  final typeController = TextEditingController();
 
   BaseController baseController = BaseController.empty();
 
   TextEditingController nameController = TextEditingController();
+  TextEditingController lastNameController = TextEditingController();
 
   TextEditingController emailController = TextEditingController();
 
@@ -106,7 +111,12 @@ class _RegisterPageState extends State<RegisterPage> {
                 Center(child: image()),
                 buildTextField(
                     controller: nameController,
-                    labelText: "Full name",
+                    labelText: "Name",
+                    isPassword: false,
+                    validatorField: baseController.validateName),
+                buildTextField(
+                    controller: lastNameController,
+                    labelText: "Last Name",
                     isPassword: false,
                     validatorField: baseController.validateName),
                 buildTextField(
@@ -183,39 +193,44 @@ class _RegisterPageState extends State<RegisterPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           paddingForms(labelText),
-          TextFormField(
-            style: const TextStyle(color: Colors.white),
-            controller: controller,
-            validator: validatorField,
-            obscureText: _obscureText,
-            decoration: InputDecoration(
-              fillColor: Color.fromARGB(255, 28, 33, 39),
-              filled: true,
-              enabledBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color(0x00000000),
+          StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return TextFormField(
+              style: const TextStyle(color: Colors.white),
+              controller: controller,
+              validator: validatorField,
+              obscureText: _obscureText,
+              decoration: InputDecoration(
+                fillColor: Color.fromARGB(255, 28, 33, 39),
+                filled: true,
+                enabledBorder: OutlineInputBorder(
+                    borderSide: const BorderSide(
+                      color: Color(0x00000000),
+                      width: 1,
+                    ),
+                    borderRadius: BorderRadius.circular(8)),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(
+                    color: Color.fromARGB(255, 28, 33, 39),
                     width: 1,
                   ),
-                  borderRadius: BorderRadius.circular(8)),
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-                  color: Color.fromARGB(255, 28, 33, 39),
-                  width: 1,
+                  borderRadius: BorderRadius.circular(8),
                 ),
-                borderRadius: BorderRadius.circular(8),
+                suffixIcon: isPassword
+                    ? IconButton(
+                        icon: Icon(
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
+                        ),
+                        onPressed: () => setState(() {
+                          _obscureText = !_obscureText;
+                        }),
+                      )
+                    : null,
               ),
-              suffixIcon: isPassword
-                  ? IconButton(
-                      icon: Icon(
-                        _obscureText ? Icons.visibility : Icons.visibility_off,
-                      ),
-                      onPressed: () => setState(() {
-                        _obscureText = !_obscureText;
-                      }),
-                    )
-                  : null,
-            ),
-          )
+            );
+          }),
         ],
       ),
     );
@@ -289,7 +304,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   onChanged: (String? newValue) {
                     setState(() {
                       dropdownValue = newValue;
-                      dropdownController.text = newValue ?? '';
+                      typeController.text = newValue ?? '';
                     });
                   },
                   validator: baseController.validateField,
@@ -317,8 +332,29 @@ class _RegisterPageState extends State<RegisterPage> {
   ElevatedButton RegisterButton(_key) {
     return ElevatedButton(
       onPressed: () {
-        if (_key.currentState!.validate()) {
-          // Implement your logic here
+        if (_key.currentState!.validate() && imageUpload != null) {
+          if (typeController == "Client") {
+            Client cliente = Client(
+              name: nameController.text,
+              lastName: lastNameController.text,
+              email: emailController.text,
+              password: passwordController.text,
+              typeUser: typeController.text,
+              urlImage: imageUpload!.path,
+            );
+          }
+          else{
+            Barber barber = Barber(
+              name: nameController.text,
+              lastName: lastNameController.text,
+              email: emailController.text,
+              password: passwordController.text,
+              typeUser: typeController.text,
+              urlImage: imageUpload!.path,
+              
+            );
+
+          }
         }
         if (imageUpload == null) {
           ScaffoldMessenger.of(context).showSnackBar(

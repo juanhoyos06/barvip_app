@@ -16,4 +16,8 @@ class BarberController extends BaseController {
   Future<void> updateBarber(Barber barber, String id) async {
     await updateData(barber.toJson(), id);
   }
+
+  Stream<QuerySnapshot>? usersStream() {
+    return FirebaseFirestore.instance.collection('testLoginBarber').snapshots();
+  }
 }

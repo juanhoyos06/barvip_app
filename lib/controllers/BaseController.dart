@@ -111,17 +111,42 @@ class BaseController {
     return userFound;
   }
 
-  String? validateFieldLogin(String? email, String? password) {
+  void validateFieldLogin(
+      String? email, String? password, BuildContext context) async {
+    // Bandera para saber si el usuario fue encontrado
+    bool userFound = false;
+    // Este es el mensaje de validación que se mostrará en el SnackBar
+    String? validationMessage;
     if (email == null || email.isEmpty) {
-      return 'Email is required';
+      validationMessage = 'Email is required';
+    } else if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
+      validationMessage = 'Please enter a valid email';
+    } else if (password == null || password.isEmpty) {
+      validationMessage = 'Password is required';
     }
-    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(email)) {
-      return 'Please enter a valid email';
+    // Si hay un mensaje de validación, se muestra en un SnackBar
+    if (validationMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        backgroundColor: Colors.red,
+        content: Text(
+          validationMessage,
+          textAlign: TextAlign.center,
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
+      ));
+    } else {
+      // LoginFireBase retorna true si el usuario fue encontrado.
+      userFound = await loginFirebase(email!, password!, context);
     }
-    if (password == null || password.isEmpty) {
-      return 'Password is required';
+    // Si el usuario no fue encontrado, se muestra un SnackBar
+    if (!userFound) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(
+            'Credenciales incorrectas',
+            textAlign: TextAlign.center,
+            style: TextStyle(fontWeight: FontWeight.w700),
+          )));
     }
-
-    return null;
   }
 }

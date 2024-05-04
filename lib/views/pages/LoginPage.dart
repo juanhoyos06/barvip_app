@@ -87,12 +87,13 @@ class _LoginPageState extends State<LoginPage> {
                     height: MediaQuery.of(context).size.height * 0.13,
                     child: Column(
                       children: [
-                        TextButton(
-                            onPressed: () {},
-                            child: Text(
-                              'Don\'t have an account yet?',
-                              style: TextStyle(color: MyColors.SecondaryColor),
-                            )),
+                        Text(
+                          'Don\'t have an account yet?',
+                          style: TextStyle(
+                              color: MyColors.SecondaryColor,
+                              height:
+                                  MediaQuery.of(context).size.height * 0.0035),
+                        ),
                         OutlinedButton(
                             style: ButtonStyle(
                               side: MaterialStateProperty.all(
@@ -196,34 +197,15 @@ class _LoginPageState extends State<LoginPage> {
     return ElevatedButton(
       onPressed: () async {
         // Se valida el email y la contrasena ingresada
-        String? validationResult = _baseController.validateFieldLogin(
-            _emailController.text, _passwordController.text);
-        //Si validation result es null, quiere decir que los campos estan correctamente diligenciados
-
-        if (validationResult == null) {
-          bool userFound = await _baseController.loginFirebase(
-              _emailController.text, _passwordController.text, context);
-          print('Este es userFound ${userFound}');
-          if (!userFound) {
-            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-                backgroundColor: Colors.red,
-                content: Text(
-                  'Usuario no encontrado',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                )));
-          }
-        } else {
-          //si no, se muestra un snackbar con el mensaje de error, correspondiente.
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(
-                validationResult,
-                textAlign: TextAlign.center,
-                style: TextStyle(fontWeight: FontWeight.w700),
-              )));
-        }
+        _baseController.validateFieldLogin(
+            _emailController.text, _passwordController.text, context);
       },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: MyColors.ButtonColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+      ),
       child: Text(
         'Sign In',
         style: GoogleFonts.inter(
@@ -231,12 +213,6 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: 18,
             fontWeight: FontWeight.w400,
             letterSpacing: 0),
-      ),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: MyColors.ButtonColor,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(25),
-        ),
       ),
     );
   }

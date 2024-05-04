@@ -1,7 +1,12 @@
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:barvip_app/controllers/BaseController.dart';
+import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:barvip_app/views/pages/LoginPage.dart';
+import 'package:image_picker/image_picker.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -10,12 +15,16 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   String? dropdownValue;
+  bool _obscureText = true;
+
+  File? imageUpload;
+
+  ValueNotifier<bool> passwordObscureTextNotifier = ValueNotifier(true);
+  ValueNotifier<bool> confirmPasswordObscureTextNotifier = ValueNotifier(true);
 
   final dropdownController = TextEditingController();
 
   BaseController baseController = BaseController.empty();
-
-  TextEditingController imageController = TextEditingController();
 
   TextEditingController nameController = TextEditingController();
 
@@ -26,27 +35,55 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController confirpasswordController = TextEditingController();
 
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  bool isImageSelected = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.black,
-      body: Padding(
-        padding: EdgeInsets.all(50),
-        child: SingleChildScrollView(
-          // Agrega esto
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.08,
+              vertical: MediaQuery.of(context).size.height * 0.1),
           child: Column(
+            mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Center(
-                  child: Text(
-                'Create account',
-                style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white),
-              )),
-              req_Image()
+              Container(
+                  height: 40,
+                  width: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(100),
+                    color: Color.fromARGB(255, 28, 33, 39),
+                  ),
+                  child: IconButton(
+                      iconSize: 20,
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                          builder: (context) => LobbyPage(),
+                        ));
+                      },
+                      icon: const Icon(
+                        Icons.keyboard_arrow_left,
+                        color: Colors.white,
+                      ))),
+              Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                child: Text(
+                  'Create an account',
+                  style: GoogleFonts.sora(
+                      color: Colors.white,
+                      fontSize: 42,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0),
+                ),
+              ),
+              FormsFieldsRegister()
             ],
           ),
         ),
@@ -54,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  Form req_Image() {
+  Form FormsFieldsRegister() {
     return Form(
       key: _key,
       child: Column(
@@ -67,64 +104,31 @@ class _RegisterPageState extends State<RegisterPage> {
               mainAxisSize: MainAxisSize.max,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-                ),
-                TextFormField(
-                  style: const TextStyle(color: Colors.white),
-                  controller: imageController,
-                  validator: baseController.validateField,
-                  decoration: const InputDecoration(
-                    labelText: 'Enter image URL',
-                    labelStyle: TextStyle(color: Colors.white),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                  ),
+                Center(child: image()),
+                buildTextField(
+                  controller: nameController,
+                  labelText: "Full name",
                 ),
                 buildTextField(
-                    controller: nameController,
-                    labelText: "Full name",
-                    isPassword: false),
-                buildTextField(
-                    controller: emailController,
-                    labelText: "Email",
-                    isPassword: false),
-                buildTextField(
-                    controller: passwordController,
-                    labelText: "Password",
-                    isPassword: true),
-                buildTextField(
+                  controller: emailController,
+                  labelText: "Email",
+                ),
+                buildTextFieldPassword(
+                  controller: passwordController,
+                  labelText: "Password",
+                  obscureTextNotifier: passwordObscureTextNotifier,
+                ),
+                buildTextFieldPassword(
                     controller: confirpasswordController,
                     labelText: "Confirm Password",
-                    isPassword: true),
-                reqType(),
-                Container(
-                  width: double.infinity,
-                  child: Padding(
-                    padding: const EdgeInsets.all(30),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_key.currentState!.validate()) {
-                          // Implement your logic here
-                        }
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            Color.fromRGBO(217, 173, 38,
-                                1)), // Cambia a tu color preferido
-                      ),
-                      child: DefaultTextStyle(
-                        style: TextStyle(
-                            color:
-                                Colors.white), // Cambia el color del texto aquí
-                        child: Text('Submit'),
-                      ),
-                    ),
-                  ),
+                    obscureTextNotifier: confirmPasswordObscureTextNotifier),
+                textFieldType(),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      child: RegisterButton(_key)),
                 ),
               ],
             ),
@@ -134,50 +138,116 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
+  Widget image() {
+    return GestureDetector(
+      onTap: () async {
+        final imagen = await baseController.getImage();
+        if (imagen != null) {
+          setState(() {
+            imageUpload = File(imagen.path);
+            isImageSelected = true;
+          });
+        } else {
+          setState(() {
+            isImageSelected = false;
+          });
+        }
+      },
+      child: CircleAvatar(
+        backgroundImage: imageUpload != null
+            ? FileImage(imageUpload!)
+            : AssetImage('lib/assets/images/user_profile.png') as ImageProvider,
+        radius: 60,
+        backgroundColor: Colors.grey[200],
+      ),
+    );
+  }
+
   Padding buildTextField({
     required TextEditingController controller,
     required String labelText,
-    bool isPassword = false,
   }) {
-    bool _obscureText = isPassword;
     return Padding(
-      padding: EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
+          paddingForms(labelText),
+          TextFormField(
+            controller: controller,
+            validator: baseController.validateField,
+            decoration: decorationFields(),
+            style: TextStyle(
+                fontFamily: GoogleFonts.inter().fontFamily,
+                color: Colors.white),
+          )
+        ],
+      ),
+    );
+  }
+
+//Decoraccion de los fields
+  InputDecoration decorationFields() {
+    return InputDecoration(
+      fillColor: Color.fromARGB(255, 28, 33, 39),
+      filled: true,
+      enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Color(0x00000000),
+            width: 1,
           ),
-          StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
+          borderRadius: BorderRadius.circular(8)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 28, 33, 39),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+    );
+  }
+
+//Pading de los fields
+  Padding paddingForms(String labelText) {
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(0, 10, 0, 0),
+      child: Text(
+        labelText,
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+    );
+  }
+
+  Padding buildTextFieldPassword({
+    required TextEditingController controller,
+    required String labelText,
+    required ValueNotifier<bool> obscureTextNotifier,
+  }) {
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+      child: Column(
+        mainAxisSize: MainAxisSize.max,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          paddingForms(labelText),
+          ValueListenableBuilder<bool>(
+            valueListenable: obscureTextNotifier,
+            builder: (context, obscureText, child) {
               return TextFormField(
-                style: const TextStyle(color: Colors.white),
                 controller: controller,
-                validator: (value) => baseController.validateFieldAndPassword(value, passwordController),
-                obscureText: _obscureText,
-                decoration: InputDecoration(
-                  labelText: labelText,
-                  labelStyle: const TextStyle(color: Colors.white),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(color: Colors.white),
-                  ),
-                  suffixIcon: isPassword
-                      ? IconButton(
-                          icon: Icon(
-                            _obscureText
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () => setState(() {
-                            _obscureText = !_obscureText;
-                          }),
-                        )
-                      : null,
-                ),
+                obscureText: obscureText,
+                validator: (value) => baseController.validateFieldAndPassword(
+                    value, passwordController),
+                decoration:
+                    DecorationsPassword(obscureText, obscureTextNotifier),
+                style: TextStyle(
+                    fontFamily: GoogleFonts.inter().fontFamily,
+                    color: Colors.white),
               );
             },
           ),
@@ -186,16 +256,43 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  reqType() {
+  InputDecoration DecorationsPassword(
+      bool obscureText, ValueNotifier<bool> obscureTextNotifier) {
+    return InputDecoration(
+      fillColor: Color.fromARGB(255, 28, 33, 39),
+      filled: true,
+      enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            color: Color(0x00000000),
+            width: 1,
+          ),
+          borderRadius: BorderRadius.circular(8)),
+      focusedBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Color.fromARGB(255, 28, 33, 39),
+          width: 1,
+        ),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      suffixIcon: IconButton(
+        icon: Icon(
+          obscureText ? Icons.visibility : Icons.visibility_off,
+        ),
+        onPressed: () {
+          obscureTextNotifier.value = !obscureText;
+        },
+      ),
+    );
+  }
+
+  textFieldType() {
     return Padding(
         padding: EdgeInsetsDirectional.fromSTEB(0, 18, 0, 10),
         child: Column(
           mainAxisSize: MainAxisSize.max,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Padding(
-              padding: EdgeInsetsDirectional.fromSTEB(0, 0, 0, 4),
-            ),
+            paddingForms("Type"),
             Container(
               width: double.infinity,
               child: Theme(
@@ -208,19 +305,10 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
                 child: DropdownButtonFormField<String>(
                   isExpanded: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Type',
-                    labelStyle: const TextStyle(
-                      color: Colors.white,
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(color: Colors.white),
-                    ),
-                    
-                  ),
+                  decoration: decorationFields(),
+                  style: TextStyle(
+                      fontFamily: GoogleFonts.inter().fontFamily,
+                      color: Colors.white),
                   // Agrega un hint al DropdownButton
                   value: dropdownValue,
                   icon: const Icon(Icons.arrow_downward, color: Colors.white),
@@ -237,7 +325,14 @@ class _RegisterPageState extends State<RegisterPage> {
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
-                      child: Text(value, style: TextStyle(color: Colors.white)),
+                      child: Text(
+                        value,
+                        style: GoogleFonts.inter(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w400,
+                            letterSpacing: 0),
+                      ),
                     );
                   }).toList(),
                 ),
@@ -245,5 +340,45 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ],
         ));
+  }
+
+  ElevatedButton RegisterButton(_key) {
+    return ElevatedButton(
+      onPressed: () {
+        if (_key.currentState!.validate()) {
+          // Implement your logic here
+        }
+        if (imageUpload == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: Colors.red,
+              content: Text(
+                'Please select an image',
+                style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0),
+              ),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Color(0xFFD9AD26),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+      ),
+      child: Text(
+        'Register',
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+    );
   }
 }

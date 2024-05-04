@@ -9,7 +9,7 @@ const String collection = 'barbers';
 class BarberController extends BaseController {
   BarberController() : super(collection);
 
-  Future<String> saveBarber(Barber barber) async {
+  Future<Map<String, dynamic>> saveBarber(Barber barber) async {
     return await saveData(barber.toJson());
   }
 

@@ -13,7 +13,7 @@ BaseController baseController = BaseController('testLogin');
 class ClientController extends BaseController {
   ClientController() : super(collection);
 
-  Future<String> saveClient(Client client) async {
+  Future<Map<String, dynamic>> saveClient(Client client) async {
     return await saveData(client.toJson());
   }
 

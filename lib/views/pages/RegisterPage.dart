@@ -15,7 +15,6 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   String? dropdownValue;
-  bool _obscureText = true;
 
   File? imageUpload;
 
@@ -106,22 +105,28 @@ class _RegisterPageState extends State<RegisterPage> {
               children: [
                 Center(child: image()),
                 buildTextField(
-                  controller: nameController,
-                  labelText: "Full name",
-                ),
+                    controller: nameController,
+                    labelText: "Full name",
+                    isPassword: false,
+                    validatorField: baseController.validateName),
                 buildTextField(
-                  controller: emailController,
-                  labelText: "Email",
-                ),
-                buildTextFieldPassword(
-                  controller: passwordController,
-                  labelText: "Password",
-                  obscureTextNotifier: passwordObscureTextNotifier,
-                ),
-                buildTextFieldPassword(
+                    controller: emailController,
+                    labelText: "Email",
+                    isPassword: false,
+                    validatorField: baseController.validateEmail),
+                buildTextField(
+                    controller: passwordController,
+                    labelText: "Password",
+                    isPassword: true,
+                    validatorField: (value) =>
+                        baseController.validateFieldAndPassword(
+                            value, confirpasswordController)),
+                buildTextField(
                     controller: confirpasswordController,
                     labelText: "Confirm Password",
-                    obscureTextNotifier: confirmPasswordObscureTextNotifier),
+                    isPassword: true,
+                    validatorField: (value) => baseController
+                        .validateFieldAndPassword(value, passwordController)),
                 textFieldType(),
                 Padding(
                   padding: const EdgeInsets.all(20),
@@ -156,7 +161,8 @@ class _RegisterPageState extends State<RegisterPage> {
       child: CircleAvatar(
         backgroundImage: imageUpload != null
             ? FileImage(imageUpload!)
-            : const AssetImage('lib/assets/images/user_profile.png') as ImageProvider,
+            : const AssetImage('lib/assets/images/user_profile.png')
+                as ImageProvider,
         radius: 60,
         backgroundColor: Colors.grey[200],
       ),
@@ -166,21 +172,49 @@ class _RegisterPageState extends State<RegisterPage> {
   Padding buildTextField({
     required TextEditingController controller,
     required String labelText,
+    bool isPassword = false,
+    required validatorField,
   }) {
+    bool _obscureText = isPassword;
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
+      padding: EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           paddingForms(labelText),
           TextFormField(
+            style: const TextStyle(color: Colors.white),
             controller: controller,
-            validator: baseController.validateField,
-            decoration: decorationFields(),
-            style: TextStyle(
-                fontFamily: GoogleFonts.inter().fontFamily,
-                color: Colors.white),
+            validator: validatorField,
+            obscureText: _obscureText,
+            decoration: InputDecoration(
+              fillColor: Color.fromARGB(255, 28, 33, 39),
+              filled: true,
+              enabledBorder: OutlineInputBorder(
+                  borderSide: const BorderSide(
+                    color: Color(0x00000000),
+                    width: 1,
+                  ),
+                  borderRadius: BorderRadius.circular(8)),
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+                  color: Color.fromARGB(255, 28, 33, 39),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              suffixIcon: isPassword
+                  ? IconButton(
+                      icon: Icon(
+                        _obscureText ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: () => setState(() {
+                        _obscureText = !_obscureText;
+                      }),
+                    )
+                  : null,
+            ),
           )
         ],
       ),
@@ -219,68 +253,6 @@ class _RegisterPageState extends State<RegisterPage> {
             fontSize: 18,
             fontWeight: FontWeight.w400,
             letterSpacing: 0),
-      ),
-    );
-  }
-
-  Padding buildTextFieldPassword({
-    required TextEditingController controller,
-    required String labelText,
-    required ValueNotifier<bool> obscureTextNotifier,
-  }) {
-    return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(0, 18, 0, 0),
-      child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          paddingForms(labelText),
-          ValueListenableBuilder<bool>(
-            valueListenable: obscureTextNotifier,
-            builder: (context, obscureText, child) {
-              return TextFormField(
-                controller: controller,
-                obscureText: obscureText,
-                validator: (value) => baseController.validateFieldAndPassword(
-                    value, passwordController),
-                decoration:
-                    DecorationsPassword(obscureText, obscureTextNotifier),
-                style: TextStyle(
-                    fontFamily: GoogleFonts.inter().fontFamily,
-                    color: Colors.white),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-
-  InputDecoration DecorationsPassword(
-      bool obscureText, ValueNotifier<bool> obscureTextNotifier) {
-    return InputDecoration(
-      fillColor: Color.fromARGB(255, 28, 33, 39),
-      filled: true,
-      enabledBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Color(0x00000000),
-            width: 1,
-          ),
-          borderRadius: BorderRadius.circular(8)),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(
-          color: Color.fromARGB(255, 28, 33, 39),
-          width: 1,
-        ),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      suffixIcon: IconButton(
-        icon: Icon(
-          obscureText ? Icons.visibility : Icons.visibility_off,
-        ),
-        onPressed: () {
-          obscureTextNotifier.value = !obscureText;
-        },
       ),
     );
   }

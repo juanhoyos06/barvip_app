@@ -30,12 +30,26 @@ class BaseController {
   String? validateField(value) {
     return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
   }
+  String? validateName(value) {
+    validateField(value);
+    if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
+    return "Este campo solo debe contener letras";
+  }
+
+  }
+  String? validateEmail(value) {
+    validateField(value);
+    if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
+      return  'Please enter a valid email';
+    }
+    
+
+  }
 
    String? validateFieldAndPassword(String? value, TextEditingController passwordController) {
-    if (value == null || value.isEmpty) {
-      return 'Este campo no puede estar vacío';
-    }
-    if (value.length < 6) {
+    validateField(value);
+
+    if (value!.length < 6) {
       return ' La contraseña debe tener al menos 6 caracteres';
     }
     if (value != passwordController.text) {

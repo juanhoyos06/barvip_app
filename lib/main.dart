@@ -24,7 +24,7 @@ class MainApp extends StatelessWidget {
           colorSchemeSeed: Colors.white),
       home: Scaffold(
         body: Center(
-          child: DashBoardBarberPage(),
+          child: LobbyPage(),
         ),
       ),
     );

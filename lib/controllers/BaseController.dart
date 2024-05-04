@@ -3,6 +3,7 @@ import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:barvip_app/models/Client.dart';
+import 'package:image_picker/image_picker.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -25,18 +26,22 @@ class BaseController {
     await db.collection(collection).doc(id).update(data);
   }
 
+
   String? validateField(value) {
     return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
   }
 
-  String? validateFieldAndPassword(
-      String? value, TextEditingController passwordController) {
+   String? validateFieldAndPassword(String? value, TextEditingController passwordController) {
     if (value == null || value.isEmpty) {
       return 'Este campo no puede estar vacío';
+    }
+    if (value.length < 6) {
+      return ' La contraseña debe tener al menos 6 caracteres';
     }
     if (value != passwordController.text) {
       return 'Las contraseñas no coinciden';
     }
+    
     return null;
   }
 
@@ -148,5 +153,13 @@ class BaseController {
             style: TextStyle(fontWeight: FontWeight.w700),
           )));
     }
+  }
+    Future<XFile?> getImage()async{
+
+     final ImagePicker picker = ImagePicker();
+     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+     return image;
+
   }
 }

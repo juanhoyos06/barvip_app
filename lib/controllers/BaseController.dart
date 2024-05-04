@@ -1,10 +1,18 @@
+import 'dart:io';
+
+import 'package:barvip_app/controllers/BarberController.dart';
+import 'package:barvip_app/controllers/ClientController.dart';
 import 'package:barvip_app/models/Barber.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
+import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:barvip_app/models/Client.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 
+final FirebaseStorage storage = FirebaseStorage.instance;
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 class BaseController {
@@ -14,11 +22,15 @@ class BaseController {
 
   BaseController.empty({this.collection = ""});
 
-  saveData(Map<String, dynamic> data) async {
+  Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      return db.collection(collection).add(data).toString();
+      DocumentReference docRef = await db.collection(collection).add(data);
+      await docRef.update({'id': docRef.id});
+      return {
+        'success': true,
+      };
     } catch (e) {
-      return null;
+      return {'success': false};
     }
   }
 
@@ -26,27 +38,26 @@ class BaseController {
     await db.collection(collection).doc(id).update(data);
   }
 
-
   String? validateField(value) {
     return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
   }
+
   String? validateName(value) {
     validateField(value);
     if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-    return "Este campo solo debe contener letras";
+      return "Este campo solo debe contener letras";
+    }
   }
 
-  }
   String? validateEmail(value) {
     validateField(value);
     if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(value)) {
-      return  'Please enter a valid email';
+      return 'Please enter a valid email';
     }
-    
-
   }
 
-   String? validateFieldAndPassword(String? value, TextEditingController passwordController) {
+  String? validateFieldAndPassword(
+      String? value, TextEditingController passwordController) {
     validateField(value);
 
     if (value!.length < 6) {
@@ -55,7 +66,7 @@ class BaseController {
     if (value != passwordController.text) {
       return 'Las contraseñas no coinciden';
     }
-    
+
     return null;
   }
 
@@ -72,13 +83,12 @@ class BaseController {
 
     List<Client?> users1 = docs1.map((doc) {
       return Client(
-        name: doc['name'],
-        lastName: doc['lastName'],
-        email: doc['email'],
-        password: doc['password'],
-        typeUser: doc['typeUser'],
-        urlImage: doc['urlImage']
-      );
+          name: doc['name'],
+          lastName: doc['lastName'],
+          email: doc['email'],
+          password: doc['password'],
+          typeUser: doc['typeUser'],
+          urlImage: doc['urlImage']);
     }).toList();
 
     // Segunda consulta a la collecion de barberos
@@ -168,12 +178,125 @@ class BaseController {
           )));
     }
   }
-    Future<XFile?> getImage()async{
 
-     final ImagePicker picker = ImagePicker();
-     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+  Future<XFile?> getImage() async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-     return image;
+    return image;
+  }
 
+  Future<dynamic> uploadImage(File image) async {
+
+    final String nameFile = image.path.split("/").last;
+    Reference ref = storage.ref().child("images_profile").child(nameFile);
+    final UploadTask uploadTask = ref.putFile(image);
+
+    final TaskSnapshot snapshot = await uploadTask.whenComplete(() => true);
+
+    final String url = await snapshot.ref.getDownloadURL();
+
+    if (snapshot.state == TaskState.success) {
+      return url;
+    } else {
+      return false;
+    }
+  }
+
+  void logicButton(
+    context,
+    BaseController baseController,
+    ClientController clientController,
+    BarberController barberController,
+    imageUpload,
+    GlobalKey<FormState> _key,
+    TextEditingController nameController,
+    TextEditingController lastNameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController typeController,
+  ) async {
+    if (_key.currentState!.validate() && imageUpload != null) {
+      if (typeController.text == "Client") {
+        print("Entramos a cliente");
+        // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
+        final dynamic urlClient =
+            await baseController.uploadImage(imageUpload!);
+        Client newClient = Client(
+          name: nameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          typeUser: typeController.text,
+          urlImage: urlClient,
+        );
+        final Map<String, dynamic> response =
+            await clientController.saveClient(newClient);
+
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            snackbarRegister(
+                "Congratulations, your user was created successfully ",
+                Colors.green),
+          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            snackbarRegister("Error creating your user", Colors.red),
+          );
+        }
+      } else {
+        // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
+        final dynamic urlBarber =
+            await baseController.uploadImage(imageUpload!);
+        Barber newBarber = Barber(
+          name: nameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          typeUser: typeController.text,
+          urlImage: urlBarber,
+        );
+        final Map<String, dynamic> response =
+            await barberController.saveBarber(newBarber);
+
+        if (response['success'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            snackbarRegister(
+                "Congratulations, your user was created successfully ",
+                Colors.green),
+          );
+          Navigator.of(context).push(MaterialPageRoute(
+            builder: (context) => LoginPage(),
+          ));
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            snackbarRegister("Error creating your user", Colors.red),
+          );
+        }
+      }
+    }
+    if (imageUpload == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Plese select an image", Colors.red),
+      );
+    }
+  }
+
+  SnackBar snackbarRegister(labelText, Color backgroundColor) {
+    return SnackBar(
+      backgroundColor: backgroundColor,
+      content: Text(
+        labelText,
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+      duration: Duration(seconds: 2),
+    );
   }
 }

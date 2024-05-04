@@ -3,7 +3,9 @@
 import 'dart:ffi';
 import 'dart:io';
 
+import 'package:barvip_app/controllers/BarberController.dart';
 import 'package:barvip_app/controllers/BaseController.dart';
+import 'package:barvip_app/controllers/ClientController.dart';
 import 'package:barvip_app/models/Barber.dart';
 import 'package:barvip_app/models/Client.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
@@ -18,30 +20,24 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
+  //Variables declaration
   String? dropdownValue;
-
   File? imageUpload;
 
-  ValueNotifier<bool> passwordObscureTextNotifier = ValueNotifier(true);
-  ValueNotifier<bool> confirmPasswordObscureTextNotifier = ValueNotifier(true);
-
+  //Controller declaration
   final typeController = TextEditingController();
-
   BaseController baseController = BaseController.empty();
-
+  ClientController clientController = ClientController();
+  BarberController barberController = BarberController();
   TextEditingController nameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
-
   TextEditingController emailController = TextEditingController();
-
   TextEditingController passwordController = TextEditingController();
-
   TextEditingController confirpasswordController = TextEditingController();
 
+  //keys declarations
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-
-  bool isImageSelected = false;
 
   @override
   Widget build(BuildContext context) {
@@ -160,12 +156,9 @@ class _RegisterPageState extends State<RegisterPage> {
         if (imagen != null) {
           setState(() {
             imageUpload = File(imagen.path);
-            isImageSelected = true;
           });
         } else {
-          setState(() {
-            isImageSelected = false;
-          });
+          setState(() {});
         }
       },
       child: CircleAvatar(
@@ -309,7 +302,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   },
                   validator: baseController.validateField,
                   items: <String>['Client', 'Barber']
-                      .map<DropdownMenuItem<String>>((String value) {
+                      .map<DropdownMenuItem<String>>((String value) { 
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -328,51 +321,22 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ));
   }
-
+  //Boton donde se valida los campos y la logica de negocio
   ElevatedButton RegisterButton(_key) {
     return ElevatedButton(
-      onPressed: () {
-        if (_key.currentState!.validate() && imageUpload != null) {
-          if (typeController == "Client") {
-            Client cliente = Client(
-              name: nameController.text,
-              lastName: lastNameController.text,
-              email: emailController.text,
-              password: passwordController.text,
-              typeUser: typeController.text,
-              urlImage: imageUpload!.path,
-            );
-          }
-          else{
-            Barber barber = Barber(
-              name: nameController.text,
-              lastName: lastNameController.text,
-              email: emailController.text,
-              password: passwordController.text,
-              typeUser: typeController.text,
-              urlImage: imageUpload!.path,
-              
-            );
-
-          }
-        }
-        if (imageUpload == null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              backgroundColor: Colors.red,
-              content: Text(
-                'Please select an image',
-                style: GoogleFonts.inter(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w400,
-                    letterSpacing: 0),
-              ),
-              duration: Duration(seconds: 2),
-            ),
-          );
-        }
-      },
+      onPressed: () => baseController.logicButton(
+        context,
+        baseController,
+        clientController,
+        barberController,
+        imageUpload,
+        _key,
+        nameController,
+        lastNameController,
+        emailController,
+        passwordController,
+        typeController,
+      ),
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xFFD9AD26),
         shape: RoundedRectangleBorder(

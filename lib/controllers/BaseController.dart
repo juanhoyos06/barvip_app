@@ -24,13 +24,22 @@ class BaseController {
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      DocumentReference docRef = await db.collection(collection).add(data);
-      await docRef.update({'id': docRef.id});
-      return {
-        'success': true,
-      };
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection(collection)
+          .where('email', isEqualTo: data['email'])
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        print('El documento ya existe en la base de datos');
+        return {'success': false, 'state': 409};
+      } else {
+        DocumentReference docRef =
+            await FirebaseFirestore.instance.collection(collection).add(data);
+        await docRef.update({'id': docRef.id});
+        return {'success': true, 'state': 200};
+      }
     } catch (e) {
-      return {'success': false};
+      return {'success': false, 'state': 500};
     }
   }
 
@@ -187,7 +196,6 @@ class BaseController {
   }
 
   Future<dynamic> uploadImage(File image) async {
-
     final String nameFile = image.path.split("/").last;
     Reference ref = storage.ref().child("images_profile").child(nameFile);
     final UploadTask uploadTask = ref.putFile(image);
@@ -218,7 +226,6 @@ class BaseController {
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
       if (typeController.text == "Client") {
-        print("Entramos a cliente");
         // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
         final dynamic urlClient =
             await baseController.uploadImage(imageUpload!);
@@ -232,21 +239,7 @@ class BaseController {
         );
         final Map<String, dynamic> response =
             await clientController.saveClient(newClient);
-
-        if (response['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            snackbarRegister(
-                "Congratulations, your user was created successfully ",
-                Colors.green),
-          );
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => LoginPage(),
-          ));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            snackbarRegister("Error creating your user", Colors.red),
-          );
-        }
+        logicUsers(response, context);
       } else {
         // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
         final dynamic urlBarber =
@@ -261,21 +254,7 @@ class BaseController {
         );
         final Map<String, dynamic> response =
             await barberController.saveBarber(newBarber);
-
-        if (response['success'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            snackbarRegister(
-                "Congratulations, your user was created successfully ",
-                Colors.green),
-          );
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => LoginPage(),
-          ));
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            snackbarRegister("Error creating your user", Colors.red),
-          );
-        }
+        logicUsers(response, context);
       }
     }
     if (imageUpload == null) {
@@ -298,5 +277,27 @@ class BaseController {
       ),
       duration: Duration(seconds: 2),
     );
+  }
+
+  void logicUsers(response, context) {
+    if (response['success'] == true) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Congratulations, your user was created successfully ",
+            Colors.green),
+      );
+      Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => LoginPage(),
+      ));
+    }
+    if (response['state'] == 409) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("The email already exists", Colors.red),
+      );
+    }
+    if (response['success'] == false) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Error creating your user", Colors.red),
+      );
+    }
   }
 }

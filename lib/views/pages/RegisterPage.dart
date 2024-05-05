@@ -301,8 +301,8 @@ class _RegisterPageState extends State<RegisterPage> {
                     });
                   },
                   validator: baseController.validateField,
-                  items: <String>['Client', 'Barber']
-                      .map<DropdownMenuItem<String>>((String value) { 
+                  items: <String>['client', 'barber']
+                      .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
                       value: value,
                       child: Text(
@@ -321,6 +321,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ],
         ));
   }
+
   //Boton donde se valida los campos y la logica de negocio
   ElevatedButton RegisterButton(_key) {
     return ElevatedButton(

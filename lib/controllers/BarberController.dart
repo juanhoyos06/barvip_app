@@ -18,6 +18,6 @@ class BarberController extends BaseController {
   }
 
   Stream<QuerySnapshot>? usersStream() {
-    return FirebaseFirestore.instance.collection('testLoginBarber').snapshots();
+    return FirebaseFirestore.instance.collection(collection).snapshots();
   }
 }

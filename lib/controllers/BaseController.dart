@@ -87,7 +87,7 @@ class BaseController {
     // Primera consulta a la collecion de clientes
 
     QuerySnapshot querySnapshot1 =
-        await FirebaseFirestore.instance.collection('testLogin').get();
+        await FirebaseFirestore.instance.collection('client').get();
     List<DocumentSnapshot> docs1 = querySnapshot1.docs;
 
     List<Client?> users1 = docs1.map((doc) {
@@ -102,7 +102,7 @@ class BaseController {
 
     // Segunda consulta a la collecion de barberos
     QuerySnapshot querySnapshot2 =
-        await FirebaseFirestore.instance.collection('testLoginBarber').get();
+        await FirebaseFirestore.instance.collection('barbers').get();
     List<DocumentSnapshot> docs2 = querySnapshot2.docs;
 
     List<Barber?> users2 = docs2.map((doc) {
@@ -225,7 +225,7 @@ class BaseController {
     TextEditingController typeController,
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
-      if (typeController.text == "Client") {
+      if (typeController.text == "client") {
         // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
         final dynamic urlClient =
             await baseController.uploadImage(imageUpload!);

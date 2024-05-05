@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 const String collection = 'client';
-BaseController baseController = BaseController('testLogin');
 
 class ClientController extends BaseController {
   ClientController() : super(collection);

@@ -29,7 +29,7 @@ class Client {
   Map<String, dynamic> toJson() {
     return {
       'name': name,
-      'lasName': lastName,
+      'lastName': lastName,
       'email': email,
       'password': password,
       'active': true,
@@ -46,7 +46,6 @@ class Client {
     password = json['password'];
     active = json['active'];
     typeUser = json['typeUser'];
-    urlImage= json['urlImage'];
-    
+    urlImage = json['urlImage'];
   }
 }

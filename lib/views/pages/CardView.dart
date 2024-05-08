@@ -28,7 +28,7 @@ class _HeartCardState extends State<HeartCard> {
                     borderRadius: BorderRadius.circular(
                         18), // debe ser igual al valor de la tarjeta
                     child: Image.network(
-                      'https://media.licdn.com/dms/image/D4E12AQGFVGLAUpQlIQ/article-cover_image-shrink_720_1280/0/1696013611407?e=2147483647&v=beta&t=T_O-NDKXB_mROjN5tw1D4zlQBJw-1QbWOUMVc-lleVU',
+                      widget.data['urlImage'],
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -38,7 +38,7 @@ class _HeartCardState extends State<HeartCard> {
                   bottom: 8.0,
                   child: IconButton(
                     icon: Icon(
-                      Icons.favorite_border,
+                      Icons.favorite,
                       color: isHeartSelected ? Colors.red : Colors.grey,
                     ),
                     onPressed: () {

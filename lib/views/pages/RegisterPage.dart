@@ -64,9 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: IconButton(
                       iconSize: 20,
                       onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => LobbyPage(),
-                        ));
+                        Navigator.of(context).pop();
                       },
                       icon: const Icon(
                         Icons.keyboard_arrow_left,

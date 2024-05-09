@@ -1,4 +1,5 @@
 import 'package:barvip_app/controllers/BaseController.dart';
+import 'package:barvip_app/controllers/UserProvider.dart';
 
 import 'package:barvip_app/utils/MyColors.dart';
 
@@ -8,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -23,112 +25,119 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
+  final UserProvider _userProvider = UserProvider();
+
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Container(
-        margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.08,
-            vertical: MediaQuery.of(context).size.height * 0.1),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Column(
-              mainAxisSize: MainAxisSize.max,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                    height: 40,
-                    width: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100),
-                      color: MyColors.TextInputColor,
-                    ),
-                    child: IconButton(
-                        iconSize: 20,
-                        onPressed: () {
-                          Navigator.of(context).push(MaterialPageRoute(
-                            builder: (context) => LobbyPage(),
-                          ));
-                        },
-                        icon: const Icon(
-                          Icons.keyboard_arrow_left,
-                          color: Colors.white,
-                        ))),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                  child: Text(
-                    'Sign In',
-                    style: GoogleFonts.sora(
-                        color: Colors.white,
-                        fontSize: 42,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0),
-                  ),
-                ),
-                Form(key: _formKey, child: FormWidgets())
-              ],
-            ),
-            Expanded(
+        backgroundColor: Colors.black,
+        body: Consumer<UserProvider>(
+          builder: (_, userProvider, child) {
+            return Container(
+              margin: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.of(context).size.width * 0.08,
+                  vertical: MediaQuery.of(context).size.height * 0.1),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.end,
                 mainAxisSize: MainAxisSize.max,
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(
-                        color: MyColors.TextInputColor,
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(10),
-                        )),
-                    width: double.infinity,
-                    height: MediaQuery.of(context).size.height * 0.13,
-                    child: Column(
-                      children: [
-                        Text(
-                          'Don\'t have an account yet?',
-                          style: TextStyle(
-                              color: MyColors.SecondaryColor,
-                              height:
-                                  MediaQuery.of(context).size.height * 0.0035),
+                  Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                          height: 40,
+                          width: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(100),
+                            color: MyColors.TextInputColor,
+                          ),
+                          child: IconButton(
+                              iconSize: 20,
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => LobbyPage(),
+                                ));
+                              },
+                              icon: const Icon(
+                                Icons.keyboard_arrow_left,
+                                color: Colors.white,
+                              ))),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                        child: Text(
+                          'Sign In',
+                          style: GoogleFonts.sora(
+                              color: Colors.white,
+                              fontSize: 42,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0),
                         ),
-                        OutlinedButton(
-                            style: ButtonStyle(
-                              side: MaterialStateProperty.all(
-                                  BorderSide(color: MyColors.ButtonColor)),
-                              minimumSize: MaterialStateProperty.all(Size(
-                                  MediaQuery.of(context).size.width * 0.8, 40)),
-                              backgroundColor: MaterialStateProperty.all(
-                                  MyColors.ButtonColor),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).push(MaterialPageRoute(
-                                builder: (context) => RegisterPage(),
-                              ));
-                            },
-                            child: Text(
-                              'Create Account',
-                              style: GoogleFonts.inter(
-                                  color: Colors.white,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                  letterSpacing: 0),
-                            ))
+                      ),
+                      Form(key: _formKey, child: FormWidgets(userProvider))
+                    ],
+                  ),
+                  Expanded(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Container(
+                          decoration: const BoxDecoration(
+                              color: MyColors.TextInputColor,
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(10),
+                              )),
+                          width: double.infinity,
+                          height: MediaQuery.of(context).size.height * 0.13,
+                          child: Column(
+                            children: [
+                              Text(
+                                'Don\'t have an account yet?',
+                                style: TextStyle(
+                                    color: MyColors.SecondaryColor,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.0035),
+                              ),
+                              OutlinedButton(
+                                  style: ButtonStyle(
+                                    side: MaterialStateProperty.all(BorderSide(
+                                        color: MyColors.ButtonColor)),
+                                    minimumSize: MaterialStateProperty.all(Size(
+                                        MediaQuery.of(context).size.width * 0.8,
+                                        40)),
+                                    backgroundColor: MaterialStateProperty.all(
+                                        MyColors.ButtonColor),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute(
+                                      builder: (context) => RegisterPage(),
+                                    ));
+                                  },
+                                  child: Text(
+                                    'Create Account',
+                                    style: GoogleFonts.inter(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500,
+                                        letterSpacing: 0),
+                                  ))
+                            ],
+                          ),
+                        )
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
+            );
+          },
+        ));
   }
 
-  Column FormWidgets() {
+  Column FormWidgets(UserProvider userProvider) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -171,7 +180,9 @@ class _LoginPageState extends State<LoginPage> {
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
           child: Container(
-              height: 50, width: double.infinity, child: SignInButton()),
+              height: 50,
+              width: double.infinity,
+              child: SignInButton(userProvider)),
         ),
         Center(
           child: Padding(
@@ -193,12 +204,12 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  ElevatedButton SignInButton() {
+  ElevatedButton SignInButton(UserProvider userProvider) {
     return ElevatedButton(
       onPressed: () async {
         // Se valida el email y la contrasena ingresada
-        _baseController.validateFieldLogin(
-            _emailController.text, _passwordController.text, context);
+        _baseController.validateFieldLogin(_emailController.text,
+            _passwordController.text, context, userProvider);
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: MyColors.ButtonColor,

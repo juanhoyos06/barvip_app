@@ -1,8 +1,8 @@
 import 'package:barvip_app/controllers/BarberController.dart';
 import 'package:barvip_app/utils/MyColors.dart';
-import 'package:barvip_app/views/pages/CardView.dart';
+import 'package:barvip_app/views/widget/CardView.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
-import 'package:barvip_app/views/pages/NavigationBarView.dart';
+import 'package:barvip_app/views/widget/NavigationBarView.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

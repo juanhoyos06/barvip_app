@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:barvip_app/controllers/BarberController.dart';
 import 'package:barvip_app/controllers/ClientController.dart';
+import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/Barber.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
@@ -79,8 +80,8 @@ class BaseController {
     return null;
   }
 
-  Future<bool> loginFirebase(
-      String email, String password, BuildContext context) async {
+  Future<bool> loginFirebase(String email, String password,
+      BuildContext context, UserProvider userProvider) async {
     //Bandera para saber si el usuario fue encontrado
     bool userFound = false;
 
@@ -125,7 +126,7 @@ class BaseController {
         if (user?.email == email &&
             user?.password == password &&
             user?.typeUser == 'client') {
-          print('Usuario encontrado cliente');
+          userProvider.userFromClient(user!);
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DashBoardBarberPage(),
           ));
@@ -138,7 +139,8 @@ class BaseController {
         if (user?.email == email &&
             user?.password == password &&
             user?.typeUser == 'barber') {
-          print('Usuario barbero encontrado');
+          userProvider.userFromBarber(user!);
+          print(userProvider.user["name"]);
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DashBoardBarberPage(),
           ));
@@ -149,8 +151,8 @@ class BaseController {
     return userFound;
   }
 
-  void validateFieldLogin(
-      String? email, String? password, BuildContext context) async {
+  void validateFieldLogin(String? email, String? password, BuildContext context,
+      UserProvider userProvider) async {
     // Bandera para saber si el usuario fue encontrado
     bool userFound = false;
     // Este es el mensaje de validación que se mostrará en el SnackBar
@@ -174,7 +176,7 @@ class BaseController {
       ));
     } else {
       // LoginFireBase retorna true si el usuario fue encontrado.
-      userFound = await loginFirebase(email!, password!, context);
+      userFound = await loginFirebase(email!, password!, context, userProvider);
     }
     // Si el usuario no fue encontrado, se muestra un SnackBar
     if (!userFound) {

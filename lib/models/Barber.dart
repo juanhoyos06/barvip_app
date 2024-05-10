@@ -7,7 +7,8 @@ class Barber extends Client {
       required super.email,
       required super.password,
       required super.typeUser,
-      required super.urlImage});
+      required super.urlImage,
+      super.id});
 
   Barber.empty() : super.empty();
 }

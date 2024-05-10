@@ -93,6 +93,7 @@ class BaseController {
 
     List<Client?> users1 = docs1.map((doc) {
       return Client(
+          id: doc['id'],
           name: doc['name'],
           lastName: doc['lastName'],
           email: doc['email'],
@@ -108,6 +109,7 @@ class BaseController {
 
     List<Barber?> users2 = docs2.map((doc) {
       return Barber(
+        id: doc['id'],
         name: doc['name'],
         lastName: doc['lastName'],
         email: doc['email'],
@@ -141,6 +143,9 @@ class BaseController {
             user?.typeUser == 'barber') {
           userProvider.userFromBarber(user!);
           print(userProvider.user["name"]);
+          print(userProvider.user["id"]);
+          print(userProvider.user);
+
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DashBoardBarberPage(),
           ));

@@ -6,7 +6,7 @@ class Client {
   late String typeUser;
   late bool active;
   late String urlImage;
-  late int id;
+  late String id;
 
   Client(
       {required this.name,
@@ -15,7 +15,8 @@ class Client {
       required this.password,
       this.active = true,
       required this.typeUser,
-      required this.urlImage});
+      required this.urlImage,
+      this.id = ""});
 
   Client.empty() {
     name = "";
@@ -28,6 +29,7 @@ class Client {
   //De Json a Mapa
   Map<String, dynamic> toJson() {
     return {
+      'id': id,
       'name': name,
       'lastName': lastName,
       'email': email,
@@ -40,6 +42,7 @@ class Client {
 
   // De Mapa a Json
   fromJson(Map<String, dynamic> json) {
+    id = json['id'];
     name = json['name'];
     lastName = json['lastName'];
     email = json['email'];

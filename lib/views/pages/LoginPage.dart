@@ -1,10 +1,13 @@
+import 'package:barvip_app/controllers/AuthController.dart';
+import 'package:barvip_app/controllers/Services.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
-
+import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/pages/RegisterPage.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,11 +24,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _passwordVisible = true;
   UserController _userController = UserController();
+  authController _authController = authController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final UserProvider _userProvider = UserProvider();
+  String? name = "";
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +189,13 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               child: SignInButton(userProvider)),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
+          child: Container(
+              height: 50,
+              width: double.infinity,
+              child: SignInButtonGoogle(userProvider)),
+        ),
         Center(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -219,6 +231,33 @@ class _LoginPageState extends State<LoginPage> {
       ),
       child: Text(
         'Sign In',
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+    );
+  }
+
+  ElevatedButton SignInButtonGoogle(UserProvider userProvider) {
+    return ElevatedButton(
+      onPressed: () async {
+        // Se valida el email y la contrasena ingresada
+        UserCredential credential = await signInWithGoogle();
+        _authController.loginGoogle(credential, context, userProvider);
+        setState(() {
+          name = credential.user?.displayName;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: MyColors.ButtonColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+      ),
+      child: Text(
+        'Sign In With Google Name= $name',
         style: GoogleFonts.inter(
             color: Colors.white,
             fontSize: 18,

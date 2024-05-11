@@ -1,7 +1,11 @@
+import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
+import 'package:barvip_app/views/pages/EditPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -15,72 +19,86 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: MyColors.BackgroundColor,
-      body: Container(
-        margin: EdgeInsets.symmetric(
-            horizontal: MediaQuery.of(context).size.width * 0.08,
-            vertical: MediaQuery.of(context).size.height * 0.1),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CircleAvatar(
-                  minRadius: MediaQuery.of(context).size.width * 0.14,
-                  backgroundImage: Image.network(
-                          "https://static.retail.autofact.cl/blog/c_img_740x370.fqrji8l39f4gkn.jpg")
-                      .image,
-                ),
-                SizedBox(
-                  width: MediaQuery.of(context).size.width * 0.04,
-                ),
-                Text(
-                  'Welcome ',
-                  style: GoogleFonts.sora(
-                      color: Colors.white,
-                      fontSize: 30,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0),
-                ),
-              ],
-            ),
-            Expanded(
-              child: ListView(
-                children: <Widget>[
-                  ListTile(
-                    leading: CircleAvatar(
-                        backgroundColor: Colors.amberAccent,
-                        child: Icon(
-                          Icons.person_outlined,
-                          color: MyColors.ButtonColor,
-                        )),
-                    title: Text(
-                      'Edit Profile',
+      body: Consumer<UserProvider>(builder: (_, userProvider, __) {
+        return Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.08,
+              vertical: MediaQuery.of(context).size.height * 0.1),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  CircleAvatar(
+                    minRadius: MediaQuery.of(context).size.width * 0.14,
+                    backgroundImage:
+                        Image.network('${userProvider.user['urlImage']}').image,
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.04,
+                  ),
+                  Flexible(
+                    child: Text(
+                      'Welcome, ${userProvider.user['name']}!',
                       style: GoogleFonts.sora(
                           color: Colors.white,
-                          fontSize: 18,
+                          fontSize: 25,
                           fontWeight: FontWeight.w500,
                           letterSpacing: 0),
                     ),
                   ),
-                  ListTile(
-                    leading: Icon(
-                      Icons.logout_outlined,
-                    ),
-                    title: Text(
-                      'Log Out',
-                      style: GoogleFonts.sora(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0),
-                    ),
-                  )
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
+              Expanded(
+                child: ListView(
+                  children: <Widget>[
+                    ListTile(
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => EditPage(),
+                          ),
+                        );
+                      },
+                      leading: CircleAvatar(
+                          backgroundColor: MyColors.ButtonColor,
+                          child: Icon(
+                            Icons.person_outlined,
+                            color: MyColors.BackgroundColor,
+                          )),
+                      title: Text(
+                        'Edit Profile',
+                        style: GoogleFonts.sora(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0),
+                      ),
+                    ),
+                    ListTile(
+                      onTap: () {},
+                      leading: CircleAvatar(
+                        backgroundColor: MyColors.ButtonColor,
+                        child: Icon(
+                          Icons.logout_outlined,
+                        ),
+                      ),
+                      title: Text(
+                        'Log Out',
+                        style: GoogleFonts.sora(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            letterSpacing: 0),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 }

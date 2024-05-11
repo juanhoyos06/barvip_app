@@ -307,4 +307,19 @@ class BaseController {
       );
     }
   }
+
+  void editUser(
+    UserProvider,
+    context,
+    baseController,
+    clientController,
+    barberController,
+    imageUpload,
+    _key,
+    nameController,
+    lastNameController,
+    emailController,
+    passwordController,
+    typeController,
+  ) {}
 }

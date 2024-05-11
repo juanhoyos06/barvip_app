@@ -1,14 +1,12 @@
 import 'dart:io';
 
-import 'package:barvip_app/controllers/BarberController.dart';
-import 'package:barvip_app/controllers/ClientController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
-import 'package:barvip_app/models/Barber.dart';
+import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:barvip_app/models/Client.dart';
+
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -17,11 +15,7 @@ final FirebaseStorage storage = FirebaseStorage.instance;
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 class BaseController {
-  final String collection;
-
-  BaseController([this.collection = '']);
-
-  BaseController.empty({this.collection = ""});
+  final String collection = 'user';
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
@@ -88,13 +82,11 @@ class BaseController {
     // Primera consulta a la collecion de clientes
 
     QuerySnapshot querySnapshot1 =
-        await FirebaseFirestore.instance.collection('client').get();
+        await FirebaseFirestore.instance.collection(collection).get();
     List<DocumentSnapshot> docs1 = querySnapshot1.docs;
 
-    List<Client?> users1 = docs1.map((doc) {
-
-      return Client(
-
+    List<User?> users = docs1.map((doc) {
+      return User(
           id: doc['id'],
           name: doc['name'],
           lastName: doc['lastName'],
@@ -104,58 +96,26 @@ class BaseController {
           urlImage: doc['urlImage']);
     }).toList();
 
-    // Segunda consulta a la collecion de barberos
-    QuerySnapshot querySnapshot2 =
-        await FirebaseFirestore.instance.collection('barbers').get();
-    List<DocumentSnapshot> docs2 = querySnapshot2.docs;
+    print('Este es el primer usuario de la lista ${users[0]?.name}');
 
-    List<Barber?> users2 = docs2.map((doc) {
-
-      return Barber(
-
-        id: doc['id'],
-        name: doc['name'],
-        lastName: doc['lastName'],
-        email: doc['email'],
-        password: doc['password'],
-        typeUser: doc['typeUser'],
-        urlImage: doc['urlImage'],
-      );
-    }).toList();
-
-    print('Este es el primer Cliente de la lista ${users1[0]?.name}');
-    print('Este es el primer Barbero de la segunda lista ${users2[0]?.name}');
-
-    if (users1.isNotEmpty || users2.isNotEmpty) {
-      // Aqui se busca Si el usuario esta en cliente.
-      for (var user in users1) {
-        if (user?.email == email &&
-            user?.password == password &&
-            user?.typeUser == 'client') {
-          userProvider.userFromClient(user!);
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DashBoardBarberPage(),
-          ));
+    if (users.isNotEmpty) {
+      for (var user in users) {
+        if (user?.email == email && user?.password == password) {
+          userProvider.userFromDb(user!);
+          if (user?.typeUser == 'client') {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DashBoardBarberPage(),
+            ));
+          } else {
+            Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => DashBoardBarberPage(),
+            ));
+          }
           // si se encuentra el usuario
           userFound = true;
         }
       }
       // Aqui se busca si el usuario es barbero
-      for (var user in users2) {
-        if (user?.email == email &&
-            user?.password == password &&
-            user?.typeUser == 'barber') {
-          userProvider.userFromBarber(user!);
-          print(userProvider.user["name"]);
-          print(userProvider.user["id"]);
-          print(userProvider.user);
-
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DashBoardBarberPage(),
-          ));
-          userFound = true;
-        }
-      }
     }
     return userFound;
   }

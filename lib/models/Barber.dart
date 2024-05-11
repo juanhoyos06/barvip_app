@@ -11,66 +11,13 @@ class Barber {
   late String id;
 
   Barber(
-      {required this.name,
-      required this.lastName,
-      required this.email,
-      required this.password,
-      this.active = true,
-      required this.typeUser,
-      required this.urlImage});
+      {required super.name,
+      required super.lastName,
+      required super.email,
+      required super.password,
+      required super.typeUser,
+      required super.urlImage,
+      super.id});
 
-  Barber.empty() {
-    name = "";
-    lastName = "";
-    email = "";
-    password = "";
-    active = true;
-  }
-
-  Barber.whitId(
-      {required this.id,
-      required this.name,
-      required this.lastName,
-      required this.email,
-      required this.password,
-      this.active = true,
-      required this.typeUser,
-      required this.urlImage});
-
-  //De Json a Mapa
-  Map<String, dynamic> toJson() {
-    return {
-      'name': name,
-      'lastName': lastName,
-      'email': email,
-      'password': password,
-      'active': true,
-      'typeUser': typeUser,
-      'urlImage': urlImage
-    };
-  }
-
-  Map<String, dynamic> toJsonWithId() {
-    return {
-      'id': id,
-      'name': name,
-      'lastName': lastName,
-      'email': email,
-      'password': password,
-      'active': true,
-      'typeUser': typeUser,
-      'urlImage': urlImage
-    };
-  }
-
-  // De Mapa a Json
-  fromJson(Map<String, dynamic> json) {
-    name = json['name'];
-    lastName = json['lastName'];
-    email = json['email'];
-    password = json['password'];
-    active = json['active'];
-    typeUser = json['typeUser'];
-    urlImage = json['urlImage'];
-  }
+  Barber.empty() : super.empty();
 }

@@ -1,4 +1,4 @@
-class Client {
+class User {
   late String name;
   late String lastName;
   late String email;
@@ -8,7 +8,7 @@ class Client {
   late String urlImage;
   late String id;
 
-  Client(
+  User(
       {required this.name,
       required this.lastName,
       required this.email,
@@ -18,39 +18,15 @@ class Client {
       required this.urlImage,
       this.id = ""});
 
-  Client.empty() {
+  User.empty() {
     name = "";
     lastName = "";
     email = "";
     password = "";
     active = true;
   }
-
-  Client.whitId(
-      {required this.id,
-      required this.name,
-      required this.lastName,
-      required this.email,
-      required this.password,
-      this.active = true,
-      required this.typeUser,
-      required this.urlImage});
-
   //De Json a Mapa
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'lastName': lastName,
-      'email': email,
-      'password': password,
-      'active': true,
-      'typeUser': typeUser,
-      'urlImage': urlImage
-    };
-  }
-
-  Map<String, dynamic> toJsonWithId() {
     return {
       'id': id,
       'name': name,

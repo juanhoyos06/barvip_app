@@ -2,10 +2,10 @@ import 'package:barvip_app/models/User.dart';
 import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
-  late Map<String, dynamic> user;
+  late Map<String, dynamic> users;
 
   userFromDb(User user) {
-    user = user.toJson();
+    users = user.toJson();
     notifyListeners();
   }
 }

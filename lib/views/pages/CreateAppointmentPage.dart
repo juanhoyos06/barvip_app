@@ -1,7 +1,6 @@
 import 'dart:ffi';
 
 import 'package:barvip_app/controllers/AppointmentController.dart';
-import 'package:barvip_app/controllers/BaseController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/Appointment.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';

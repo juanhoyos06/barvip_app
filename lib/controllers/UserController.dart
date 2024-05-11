@@ -2,11 +2,13 @@ import 'dart:io';
 
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/User.dart';
+import 'package:barvip_app/utils/MyStyles.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:barvip_app/views/pages/ProfilePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -18,16 +20,12 @@ FirebaseFirestore db = FirebaseFirestore.instance;
 
 class UserController {
   final String collection = 'user';
+  MyStyles myStyles = MyStyles();
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(collection)
-          .where('email', isEqualTo: data['email'])
-          .get();
-
-      if (querySnapshot.docs.isNotEmpty) {
-        print('El documento ya existe en la base de datos');
+      var existingUser = await getUserByEmail(data['email']);
+      if (existingUser) {
         return {'success': false, 'state': 409};
       } else {
         DocumentReference docRef =
@@ -37,6 +35,16 @@ class UserController {
       }
     } catch (e) {
       return {'success': false, 'state': 500};
+    }
+  }
+
+  Future<bool> getUserByEmail(String email) async {
+    QuerySnapshot querySnapshot =
+        await db.collection(collection).where('email', isEqualTo: email).get();
+    if (querySnapshot.docs.isNotEmpty) {
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -87,8 +95,8 @@ class UserController {
         await FirebaseFirestore.instance.collection(collection).get();
     List<DocumentSnapshot> docs1 = querySnapshot1.docs;
 
-    List<User?> users = docs1.map((doc) {
-      return User(
+    List<UserBarvip?> users = docs1.map((doc) {
+      return UserBarvip(
           id: doc['id'],
           name: doc['name'],
           lastName: doc['lastName'],
@@ -197,7 +205,7 @@ class UserController {
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
       final dynamic urlClient = await uploadImage(imageUpload!);
-      User newUser = User(
+      UserBarvip newUser = UserBarvip(
         name: nameController.text,
         lastName: lastNameController.text,
         email: emailController.text,
@@ -206,35 +214,22 @@ class UserController {
         urlImage: urlClient,
       );
 
-      final Map<String, dynamic> response = await saveData(newUser.toJson());
+      final Map<String, dynamic> response = await saveData(
+          newUser.toJson()); //Esta funcion responde un Map con succes y state
       logicUsers(response, context);
     }
     if (imageUpload == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Plese select an image", Colors.red),
+        myStyles.snackbar("Plese select an image", Colors.red),
       );
     }
-  }
-
-  SnackBar snackbarRegister(labelText, Color backgroundColor) {
-    return SnackBar(
-      backgroundColor: backgroundColor,
-      content: Text(
-        labelText,
-        style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0),
-      ),
-      duration: Duration(seconds: 2),
-    );
   }
 
   void logicUsers(response, context) {
     if (response['success'] == true) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Congratulations, your user was created successfully ",
+        myStyles.snackbar(
+            "Congratulations, your user was created successfully ",
             Colors.green),
       );
       Navigator.of(context).push(MaterialPageRoute(
@@ -243,12 +238,12 @@ class UserController {
     }
     if (response['state'] == 409) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("The email already exists", Colors.red),
+        myStyles.snackbar("The email already exists", Colors.red),
       );
     }
     if (response['success'] == false) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Error creating your user", Colors.red),
+        myStyles.snackbar("Error creating your user", Colors.red),
       );
     }
   }
@@ -280,7 +275,7 @@ class UserController {
       print(
           'Este es el nombre actualizado de NameController.text ${nameController.text}');
 
-      User userUpdated = User(
+      UserBarvip userUpdated = UserBarvip(
         id: userProvider.users['id'],
         name: nameController.text,
         lastName: lastNameController.text,
@@ -301,7 +296,7 @@ class UserController {
     }
     if (imageUpload == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Plese select an image", Colors.red),
+        myStyles.snackbar("Plese select an image", Colors.red),
       );
     }
   }

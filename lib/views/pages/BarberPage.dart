@@ -101,7 +101,9 @@ class _BarberPageState extends State<BarberPage> {
       ElevatedButton(
         onPressed: () {
           Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => const CreateAppointmentPage(),
+            builder: (context) => CreateAppointmentPage(
+              idBarber: widget.barber['id'],
+            ),
           ));
         },
         child: const Text("Schedule now"),

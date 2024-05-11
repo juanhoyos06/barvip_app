@@ -3,11 +3,8 @@
 import 'dart:ffi';
 import 'dart:io';
 
-import 'package:barvip_app/controllers/BarberController.dart';
-import 'package:barvip_app/controllers/BaseController.dart';
-import 'package:barvip_app/controllers/ClientController.dart';
-import 'package:barvip_app/models/Barber.dart';
-import 'package:barvip_app/models/Client.dart';
+
+import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -26,9 +23,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
   //Controller declaration
   final typeController = TextEditingController();
-  BaseController baseController = BaseController.empty();
-  ClientController clientController = ClientController();
-  BarberController barberController = BarberController();
+  UserController _userController = UserController();
   TextEditingController nameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -107,29 +102,29 @@ class _RegisterPageState extends State<RegisterPage> {
                     controller: nameController,
                     labelText: "Name",
                     isPassword: false,
-                    validatorField: baseController.validateName),
+                    validatorField: _userController.validateName),
                 buildTextField(
                     controller: lastNameController,
                     labelText: "Last Name",
                     isPassword: false,
-                    validatorField: baseController.validateName),
+                    validatorField: _userController.validateName),
                 buildTextField(
                     controller: emailController,
                     labelText: "Email",
                     isPassword: false,
-                    validatorField: baseController.validateEmail),
+                    validatorField: _userController.validateEmail),
                 buildTextField(
                     controller: passwordController,
                     labelText: "Password",
                     isPassword: true,
                     validatorField: (value) =>
-                        baseController.validateFieldAndPassword(
+                        _userController.validateFieldAndPassword(
                             value, confirpasswordController)),
                 buildTextField(
                     controller: confirpasswordController,
                     labelText: "Confirm Password",
                     isPassword: true,
-                    validatorField: (value) => baseController
+                    validatorField: (value) => _userController
                         .validateFieldAndPassword(value, passwordController)),
                 textFieldType(),
                 Padding(
@@ -150,7 +145,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget image() {
     return GestureDetector(
       onTap: () async {
-        final imagen = await baseController.getImage();
+        final imagen = await _userController.getImage();
         if (imagen != null) {
           setState(() {
             imageUpload = File(imagen.path);
@@ -298,7 +293,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       typeController.text = newValue ?? '';
                     });
                   },
-                  validator: baseController.validateField,
+                  validator: _userController.validateField,
                   items: <String>['client', 'barber']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
@@ -323,11 +318,8 @@ class _RegisterPageState extends State<RegisterPage> {
   //Boton donde se valida los campos y la logica de negocio
   ElevatedButton RegisterButton(_key) {
     return ElevatedButton(
-      onPressed: () => baseController.logicButton(
+      onPressed: () => _userController.registerUser(
         context,
-        baseController,
-        clientController,
-        barberController,
         imageUpload,
         _key,
         nameController,

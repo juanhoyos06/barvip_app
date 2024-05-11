@@ -1,16 +1,11 @@
-import 'package:barvip_app/models/Barber.dart';
+import 'package:barvip_app/models/User.dart';
 import 'package:flutter/material.dart';
 
-import '../models/Client.dart';
-
 class UserProvider extends ChangeNotifier {
-  late Map<String, dynamic> user;
+  late Map<String, dynamic> users;
 
-  userFromClient(Client client) {
-    user = client.toJson();
-  }
-
-  userFromBarber(Barber barber) {
-    user = barber.toJson();
+  userFromDb(User user) {
+    users = user.toJson();
+    notifyListeners();
   }
 }

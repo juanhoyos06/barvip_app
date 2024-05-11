@@ -1,4 +1,5 @@
-import 'package:barvip_app/controllers/BarberController.dart';
+
+import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/widget/CardView.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
@@ -17,7 +18,7 @@ class DashBoardBarberPage extends StatefulWidget {
 }
 
 class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
-  BarberController _conBarber = BarberController();
+  UserController _userController = UserController();
   // para saber en que pagina del navigator estamos
   int currentPageIndex = 0;
   // Para el like
@@ -76,7 +77,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
           ),
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: _conBarber.usersStream(),
+          stream: _userController.usersStream(),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {

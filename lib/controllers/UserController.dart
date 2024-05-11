@@ -250,8 +250,10 @@ class UserController {
     }
   }
 
-    Stream<QuerySnapshot>? usersStream() {
-    return db.collection(collection).snapshots();
-  }
+Stream<QuerySnapshot> usersStream() {
+  return db.collection(collection)
+    .where('typeUser', isEqualTo: 'barber')
+    .snapshots();
+}
   
 }

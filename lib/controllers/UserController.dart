@@ -4,7 +4,9 @@ import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
+import 'package:barvip_app/views/pages/ProfilePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:flutter/material.dart';
 
 import 'package:google_fonts/google_fonts.dart';
@@ -102,6 +104,7 @@ class UserController {
       for (var user in users) {
         if (user?.email == email && user?.password == password) {
           userProvider.userFromDb(user!);
+
           if (user?.typeUser == 'client') {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DashBoardBarberPage(),
@@ -255,5 +258,69 @@ class UserController {
         .collection(collection)
         .where('typeUser', isEqualTo: 'barber')
         .snapshots();
+  }
+
+  void EditUser(
+    UserProvider userProvider,
+    context,
+    userController,
+    imageUpload,
+    _key,
+    TextEditingController nameController,
+    TextEditingController lastNameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController typeController,
+  ) async {
+    if (_key.currentState!.validate() && imageUpload != null) {
+      // ToDo : reutrn False y image profile.
+      dynamic urlImageProfile =
+          await updateImage(userProvider.users['urlImage'], imageUpload);
+
+      print(
+          'Este es el nombre actualizado de NameController.text ${nameController.text}');
+
+      User userUpdated = User(
+        id: userProvider.users['id'],
+        name: nameController.text,
+        lastName: lastNameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        typeUser: typeController.text,
+        urlImage: urlImageProfile!,
+      );
+
+      // Actualizar la información del usuario
+      updateData(userUpdated.toJson(), userProvider.users['id']);
+      // Actualziar la información del usuario en el provider
+      userProvider.userFromDb(userUpdated);
+      // Enviamos al usuario a la pagina de perfil.
+      Navigator.of(context).pop(MaterialPageRoute(
+        builder: (context) => ProfilePage(),
+      ));
+    }
+    if (imageUpload == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Plese select an image", Colors.red),
+      );
+    }
+  }
+
+  dynamic updateImage(String? url, File image) async {
+    // url es de la imagen que ya exite en la base de datos
+    // una vez se tiene esa referencia se actualiza el path con la nueva imagen.
+    Reference ref = storage.refFromURL(url!);
+    // putFile guarda la nueva imagen en el path de la imagen anterior
+    final UploadTask uploadTask = ref.putFile(image);
+    // indica cuando se completa la subida de la imagen
+    final TaskSnapshot snapshot = await uploadTask.whenComplete(() => true);
+    // retornamos la uri que debemos actualizar en la base de datos del usuario
+    final String uri = await snapshot.ref.getDownloadURL();
+
+    if (snapshot.state == TaskState.success) {
+      return uri;
+    } else {
+      return false;
+    }
   }
 }

@@ -32,14 +32,15 @@ class _ProfilePageState extends State<ProfilePage> {
                   CircleAvatar(
                     minRadius: MediaQuery.of(context).size.width * 0.14,
                     backgroundImage:
-                        Image.network('${userProvider.user['urlImage']}').image,
+                        Image.network('${userProvider.users['urlImage']}')
+                            .image,
                   ),
                   SizedBox(
                     width: MediaQuery.of(context).size.width * 0.04,
                   ),
                   Flexible(
                     child: Text(
-                      'Welcome, ${userProvider.user['name']}!',
+                      'Welcome, ${userProvider.users['name']}!',
                       style: GoogleFonts.sora(
                           color: Colors.white,
                           fontSize: 25,

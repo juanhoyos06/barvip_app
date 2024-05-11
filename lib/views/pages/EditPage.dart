@@ -1,10 +1,8 @@
 import 'dart:io';
 
-import 'package:barvip_app/controllers/BarberController.dart';
-import 'package:barvip_app/controllers/BaseController.dart';
-import 'package:barvip_app/controllers/ClientController.dart';
+import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
-import 'package:barvip_app/utils/MyColors.dart';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -23,9 +21,7 @@ class _EditPageState extends State<EditPage> {
 
   //Controller declaration
   final typeController = TextEditingController();
-  BaseController baseController = BaseController.empty();
-  ClientController clientController = ClientController();
-  BarberController barberController = BarberController();
+  UserController userController = UserController();
   TextEditingController nameController = TextEditingController();
   TextEditingController lastNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
@@ -39,21 +35,22 @@ class _EditPageState extends State<EditPage> {
   late UserProvider userProvider;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    userProvider = Provider.of<UserProvider>(context);
-    dropdownValue = userProvider.user['typeUser'];
-    typeController.text = userProvider.user['typeUser'];
-    nameController.text = userProvider.user['name'];
-    lastNameController.text = userProvider.user['lastName'];
-    emailController.text = userProvider.user['email'];
-    passwordController.text = userProvider.user['password'];
-    confirpasswordController.text = userProvider.user['password'];
+  void initState() {
+    super.initState();
+
+    userProvider = Provider.of<UserProvider>(context, listen: false);
+    dropdownValue = userProvider.users['typeUser'];
+    typeController.text = userProvider.users['typeUser'];
+    nameController.text = userProvider.users['name'];
+    lastNameController.text = userProvider.users['lastName'];
+    emailController.text = userProvider.users['email'];
+    passwordController.text = userProvider.users['password'];
+    confirpasswordController.text = userProvider.users['password'];
   }
 
   @override
   Widget build(BuildContext context) {
-    print({'user': userProvider.user});
+    print({'user': userProvider.users});
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.black,
@@ -120,33 +117,33 @@ class _EditPageState extends State<EditPage> {
                     controller: nameController,
                     labelText: "Name",
                     isPassword: false,
-                    validatorField: baseController.validateName,
+                    validatorField: userController.validateName,
                     isEnable: true),
                 buildTextField(
                     controller: lastNameController,
                     labelText: "Last Name",
                     isPassword: false,
-                    validatorField: baseController.validateName,
+                    validatorField: userController.validateName,
                     isEnable: true),
                 buildTextField(
                     controller: emailController,
                     labelText: "Email",
                     isPassword: false,
-                    validatorField: baseController.validateEmail,
+                    validatorField: userController.validateEmail,
                     isEnable: false),
                 buildTextField(
                     controller: passwordController,
                     labelText: "Password",
                     isPassword: true,
                     validatorField: (value) =>
-                        baseController.validateFieldAndPassword(
+                        userController.validateFieldAndPassword(
                             value, confirpasswordController),
                     isEnable: true),
                 buildTextField(
                     controller: confirpasswordController,
                     labelText: "Confirm Password",
                     isPassword: true,
-                    validatorField: (value) => baseController
+                    validatorField: (value) => userController
                         .validateFieldAndPassword(value, passwordController),
                     isEnable: true),
                 textFieldType(),
@@ -168,7 +165,7 @@ class _EditPageState extends State<EditPage> {
   Widget image() {
     return GestureDetector(
       onTap: () async {
-        final imagen = await baseController.getImage();
+        final imagen = await userController.getImage();
         if (imagen != null) {
           setState(() {
             imageUpload = File(imagen.path);
@@ -180,7 +177,7 @@ class _EditPageState extends State<EditPage> {
       child: CircleAvatar(
         backgroundImage: imageUpload != null
             ? FileImage(imageUpload!)
-            : NetworkImage(userProvider.user['urlImage']) as ImageProvider,
+            : NetworkImage(userProvider.users['urlImage']) as ImageProvider,
         radius: 60,
         backgroundColor: Colors.grey[200],
       ),
@@ -313,7 +310,7 @@ class _EditPageState extends State<EditPage> {
                   iconSize: 24,
                   elevation: 16,
                   onChanged: null,
-                  validator: baseController.validateField,
+                  validator: userController.validateField,
                   items: <String>['client', 'barber']
                       .map<DropdownMenuItem<String>>((String value) {
                     return DropdownMenuItem<String>(
@@ -338,20 +335,23 @@ class _EditPageState extends State<EditPage> {
   //Boton donde se valida los campos y la logica de negocio
   ElevatedButton updateButton(_key) {
     return ElevatedButton(
-      onPressed: () => baseController.editUser(
-        userProvider.user,
-        context,
-        baseController,
-        clientController,
-        barberController,
-        imageUpload,
-        _key,
-        nameController,
-        lastNameController,
-        emailController,
-        passwordController,
-        typeController,
-      ),
+      // imageUpload es el File con el pth de la imagen nueva que se va guardar
+      onPressed: () {
+        print(
+            'userProvider: ${userProvider.users}, nameController: $nameController, lastNameController: $lastNameController, emailController: $emailController, passwordController: $passwordController, typeController: $typeController');
+        userController.EditUser(
+          userProvider,
+          context,
+          userController,
+          imageUpload,
+          _key,
+          nameController,
+          lastNameController,
+          emailController,
+          passwordController,
+          typeController,
+        );
+      },
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xFFD9AD26),
         shape: RoundedRectangleBorder(

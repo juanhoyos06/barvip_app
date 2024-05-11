@@ -1,4 +1,4 @@
-class UserBarvip {
+class User {
   late String name;
   late String lastName;
   late String email;
@@ -8,7 +8,7 @@ class UserBarvip {
   late String urlImage;
   late String id;
 
-  UserBarvip(
+  User(
       {required this.name,
       required this.lastName,
       required this.email,
@@ -18,7 +18,7 @@ class UserBarvip {
       required this.urlImage,
       this.id = ""});
 
-  UserBarvip.empty() {
+  User.empty() {
     name = "";
     lastName = "";
     email = "";

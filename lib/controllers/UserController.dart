@@ -6,9 +6,7 @@ import 'package:barvip_app/utils/MyStyles.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -93,8 +91,8 @@ class UserController {
         await FirebaseFirestore.instance.collection(collection).get();
     List<DocumentSnapshot> docs1 = querySnapshot1.docs;
 
-    List<UserBarvip?> users = docs1.map((doc) {
-      return UserBarvip(
+    List<User?> users = docs1.map((doc) {
+      return User(
           id: doc['id'],
           name: doc['name'],
           lastName: doc['lastName'],
@@ -202,7 +200,7 @@ class UserController {
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
       final dynamic urlClient = await uploadImage(imageUpload!);
-      UserBarvip newUser = UserBarvip(
+      User newUser = User(
         name: nameController.text,
         lastName: lastNameController.text,
         email: emailController.text,

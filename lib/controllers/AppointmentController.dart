@@ -27,7 +27,7 @@ class AppointmentController {
         services: services,
         price: double.parse(priceController.text),
         suggestion: suggestionController.text,
-        idClient: userProvider.user['id'],
+        idClient: userProvider.users['id'],
         idBarber: idBarber,
       );
       if (await existingAppointmentValidation(newAppointment)) {

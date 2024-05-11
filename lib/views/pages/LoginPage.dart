@@ -1,4 +1,4 @@
-import 'package:barvip_app/controllers/BaseController.dart';
+import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 
 import 'package:barvip_app/utils/MyColors.dart';
@@ -20,7 +20,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   bool _passwordVisible = true;
-  BaseController _baseController = BaseController();
+  UserController _userController = UserController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -208,7 +208,7 @@ class _LoginPageState extends State<LoginPage> {
     return ElevatedButton(
       onPressed: () async {
         // Se valida el email y la contrasena ingresada
-        _baseController.validateFieldLogin(_emailController.text,
+        _userController.validateFieldLogin(_emailController.text,
             _passwordController.text, context, userProvider);
       },
       style: ElevatedButton.styleFrom(

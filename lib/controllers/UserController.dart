@@ -14,7 +14,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 final FirebaseStorage storage = FirebaseStorage.instance;
 FirebaseFirestore db = FirebaseFirestore.instance;
 
-class BaseController {
+class UserController {
   final String collection = 'user';
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
@@ -182,11 +182,8 @@ class BaseController {
     }
   }
 
-  void logicButton(
+  void registerUser(
     context,
-    BaseController baseController,
-    ClientController clientController,
-    BarberController barberController,
     imageUpload,
     GlobalKey<FormState> _key,
     TextEditingController nameController,
@@ -196,37 +193,18 @@ class BaseController {
     TextEditingController typeController,
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
-      if (typeController.text == "client") {
-        // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
-        final dynamic urlClient =
-            await baseController.uploadImage(imageUpload!);
-        Client newClient = Client(
-          name: nameController.text,
-          lastName: lastNameController.text,
-          email: emailController.text,
-          password: passwordController.text,
-          typeUser: typeController.text,
-          urlImage: urlClient,
-        );
-        final Map<String, dynamic> response =
-            await clientController.saveClient(newClient);
-        logicUsers(response, context);
-      } else {
-        // Llamar al metodo de subir imagen que nos devuelve la url si se subio correctamente
-        final dynamic urlBarber =
-            await baseController.uploadImage(imageUpload!);
-        Barber newBarber = Barber(
-          name: nameController.text,
-          lastName: lastNameController.text,
-          email: emailController.text,
-          password: passwordController.text,
-          typeUser: typeController.text,
-          urlImage: urlBarber,
-        );
-        final Map<String, dynamic> response =
-            await barberController.saveBarber(newBarber);
-        logicUsers(response, context);
-      }
+      final dynamic urlClient =await uploadImage(imageUpload!);
+      User newUser = User(
+        name: nameController.text,
+        lastName: lastNameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        typeUser: typeController.text,
+        urlImage: urlClient,
+      );
+
+      final Map<String, dynamic> response =await saveData(newUser.toJson());
+      logicUsers(response, context);
     }
     if (imageUpload == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -271,4 +249,9 @@ class BaseController {
       );
     }
   }
+
+    Stream<QuerySnapshot>? usersStream() {
+    return db.collection(collection).snapshots();
+  }
+  
 }

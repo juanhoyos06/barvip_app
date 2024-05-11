@@ -1,4 +1,3 @@
-import 'package:barvip_app/controllers/BarberController.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/pages/BarberPage.dart';
 import 'package:barvip_app/views/pages/CreateAppointmentPage.dart';

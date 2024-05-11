@@ -3,21 +3,22 @@ import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/utils/MyStyles.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
+import 'package:barvip_app/models/User.dart';
 
 class authController {
   UserController _userController = UserController();
   MyStyles myStyles = MyStyles();
 
   void loginGoogle(
-    UserCredential credential,
+    auth.UserCredential credential,
     BuildContext context,
     UserProvider userProvider,
   ) async {
     String? fullName = credential.user?.displayName;
     List<String>? nameParts = fullName?.split(' ');
-    UserBarvip newUser = UserBarvip(
+    User newUser = User(
       name: nameParts?.first ?? 'Default Name',
       lastName: nameParts != null && nameParts.length > 1
           ? nameParts.last

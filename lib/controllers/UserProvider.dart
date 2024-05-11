@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class UserProvider extends ChangeNotifier {
   late Map<String, dynamic> users;
 
-  userFromDb(UserBarvip user) {
+  userFromDb(User user) {
     users = user.toJson();
     notifyListeners();
   }

@@ -1,6 +1,15 @@
-import 'package:barvip_app/models/Client.dart';
+import 'package:barvip_app/models/Barber.dart';
 
-class Barber extends Client {
+class Barber {
+  late String name;
+  late String lastName;
+  late String email;
+  late String password;
+  late String typeUser;
+  late bool active;
+  late String urlImage;
+  late String id;
+
   Barber(
       {required super.name,
       required super.lastName,

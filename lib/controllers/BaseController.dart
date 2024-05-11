@@ -92,7 +92,9 @@ class BaseController {
     List<DocumentSnapshot> docs1 = querySnapshot1.docs;
 
     List<Client?> users1 = docs1.map((doc) {
+
       return Client(
+
           id: doc['id'],
           name: doc['name'],
           lastName: doc['lastName'],
@@ -108,7 +110,9 @@ class BaseController {
     List<DocumentSnapshot> docs2 = querySnapshot2.docs;
 
     List<Barber?> users2 = docs2.map((doc) {
+
       return Barber(
+
         id: doc['id'],
         name: doc['name'],
         lastName: doc['lastName'],

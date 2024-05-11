@@ -7,10 +7,12 @@ class UserProvider extends ChangeNotifier {
   late Map<String, dynamic> user;
 
   userFromClient(Client client) {
-    user = client.toJson();
+    user = client.toJsonWithId();
+    notifyListeners();
   }
 
   userFromBarber(Barber barber) {
-    user = barber.toJson();
+    user = barber.toJsonWithId();
+    notifyListeners();
   }
 }

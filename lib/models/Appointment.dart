@@ -43,4 +43,16 @@ class Appointment {
       'idBarber': idBarber
     };
   }
+
+  fromJson(Map<String, dynamic> json) {
+    address = json['address'];
+    date = json['date'];
+    hour = json['hour'];
+    services = json['services'];
+    price = json['price'];
+    suggestion = json['suggestion'];
+    idClient = json['idClient'];
+    idBarber = json['idBarber'];
+    id = json['id'];
+  }
 }

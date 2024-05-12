@@ -1,7 +1,10 @@
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/models/Appointment.dart';
+import 'package:barvip_app/models/User.dart';
+import 'package:barvip_app/views/pages/BarberPage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 FirebaseFirestore db = FirebaseFirestore.instance;
 
@@ -19,30 +22,80 @@ class AppointmentController {
     UserProvider userProvider,
     String idBarber,
   ) async {
-    if (validationAppointment(_key)) {
-      Appointment newAppointment = Appointment(
-        address: addressController.text,
-        date: dateController.text,
-        hour: hourController.text,
-        services: services,
-        price: double.parse(priceController.text),
-        suggestion: suggestionController.text,
-        idClient: userProvider.users['id'],
-        idBarber: idBarber,
-      );
-      if (await existingAppointmentValidation(newAppointment)) {
-        DocumentReference docRef =
-            await db.collection(collection).add(newAppointment.toJson());
-        await docRef.update({'id': docRef.id});
-      } else {
-        return "There is already an appointment at that time";
+    try {
+      if (validationAppointment(_key)) {
+        Appointment newAppointment = Appointment(
+          address: addressController.text,
+          date: dateController.text,
+          hour: hourController.text,
+          services: services,
+          price: double.parse(priceController.text),
+          suggestion: suggestionController.text,
+          idClient: userProvider.users['id'],
+          idBarber: idBarber,
+        );
+        if (await existingAppointmentValidation(newAppointment)) {
+          DocumentReference docRef =
+              await db.collection(collection).add(newAppointment.toJson());
+          await docRef.update({'id': docRef.id});
+          return {"success": true, "state": 200, "operation": "create"};
+        } else {
+          return {"success": false, "state": 409};
+        }
       }
+      return {"success": false, "state": 500};
+    } catch (e) {
+      return {"success": false, "state": 500};
     }
   }
 
-  deleteAppointment() {}
+  deleteAppointment(String id) {
+    try {
+      db.collection(collection).doc(id).delete();
+      return {"success": true, "state": 200, "operation": "delete"};
+    } catch (e) {
+      return {"success": false, "state": 500};
+    }
+  }
 
-  updateAppointment() {}
+  updateAppointment(
+    GlobalKey<FormState> _key,
+    TextEditingController addressController,
+    TextEditingController dateController,
+    TextEditingController hourController,
+    Map<String, dynamic> services,
+    TextEditingController priceController,
+    TextEditingController suggestionController,
+    Map<String, dynamic> oldAppointment,
+    String idAppointment,
+  ) async {
+    try {
+      if (validationAppointment(_key)) {
+        Appointment newAppointment = Appointment(
+          address: addressController.text,
+          date: dateController.text,
+          hour: hourController.text,
+          services: services,
+          price: double.parse(priceController.text),
+          suggestion: suggestionController.text,
+          idClient: oldAppointment['idClient'],
+          idBarber: oldAppointment['idBarber'],
+        );
+        if (await existingAppointmentValidation(newAppointment)) {
+          await db
+              .collection(collection)
+              .doc(idAppointment)
+              .update(newAppointment.toJson());
+          return {"success": true, "state": 200, "operation": "update"};
+        } else {
+          return {"success": false, "state": 409};
+        }
+      }
+      return {"success": false, "state": 500};
+    } catch (e) {
+      return {"success": false, "state": 500};
+    }
+  }
 
   validationAppointment(GlobalKey<FormState> _key) {
     if (_key.currentState!.validate()) {
@@ -113,5 +166,72 @@ class AppointmentController {
     }).toList();
 
     return appointments;
+  }
+
+  Stream<QuerySnapshot> appoinmentWihtFilter(userProvider) {
+    return db
+        .collection(collection)
+        .where(
+            userProvider.users['typeUser'] == 'client'
+                ? 'idClient'
+                : 'idBarber',
+            isEqualTo: userProvider.users['id'])
+        .snapshots();
+  }
+
+  answers(response, context) {
+    if (response['success'] == true && response['operation'] == 'delete') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister(
+            "Congratulation!, you appointment is deleted", Colors.green),
+      );
+      Navigator.of(context).pop();
+    }
+    if (response['success'] == true && response['operation'] == 'create') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister(
+            "Congratulations, your appointment was created successfully ",
+            Colors.green),
+      );
+      Navigator.of(context).pop();
+    }
+    if (response['success'] == true && response['operation'] == 'update') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister(
+            "Congratulations, your appointment was updated successfully ",
+            Colors.green),
+      );
+      Navigator.of(context).pop();
+    }
+    if (response['success'] == false && response['state'] == 409) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Error in creating your appointment", Colors.red),
+      );
+    }
+    if (response['success'] == false && response['state'] == 410) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Failed to update your appointment", Colors.red),
+      );
+    }
+    if (response['success'] == false && response['state'] == 500) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        snackbarRegister("Error in data base", Colors.red),
+      );
+    }
+  }
+
+  SnackBar snackbarRegister(labelText, Color backgroundColor) {
+    return SnackBar(
+      backgroundColor: backgroundColor,
+      content: Text(
+        labelText,
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+      duration: Duration(seconds: 2),
+    );
   }
 }

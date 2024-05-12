@@ -193,7 +193,7 @@ class UserController {
     TextEditingController typeController,
   ) async {
     if (_key.currentState!.validate() && imageUpload != null) {
-      final dynamic urlClient =await uploadImage(imageUpload!);
+      final dynamic urlClient = await uploadImage(imageUpload!);
       User newUser = User(
         name: nameController.text,
         lastName: lastNameController.text,
@@ -203,7 +203,7 @@ class UserController {
         urlImage: urlClient,
       );
 
-      final Map<String, dynamic> response =await saveData(newUser.toJson());
+      final Map<String, dynamic> response = await saveData(newUser.toJson());
       logicUsers(response, context);
     }
     if (imageUpload == null) {
@@ -240,7 +240,8 @@ class UserController {
     }
     if (response['state'] == 409) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("The email already exists", Colors.red),
+        snackbarRegister(
+            "The email already exists", const Color.fromRGBO(244, 67, 54, 1)),
       );
     }
     if (response['success'] == false) {
@@ -250,10 +251,15 @@ class UserController {
     }
   }
 
-Stream<QuerySnapshot> usersStream() {
-  return db.collection(collection)
-    .where('typeUser', isEqualTo: 'barber')
-    .snapshots();
-}
-  
+  Stream<QuerySnapshot> usersStream() {
+    return db
+        .collection(collection)
+        .where('typeUser', isEqualTo: 'barber')
+        .snapshots();
+  }
+
+  getUser(String id) async {
+    DocumentSnapshot user = await db.collection(collection).doc(id).get();
+    return user.data();
+  }
 }

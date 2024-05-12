@@ -1,6 +1,7 @@
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/pages/EditPage.dart';
+import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -77,7 +78,11 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     ListTile(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (context) => LoginPage()),
+                        );
+                      },
                       leading: CircleAvatar(
                         backgroundColor: MyColors.ButtonColor,
                         child: Icon(

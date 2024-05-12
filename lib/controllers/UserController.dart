@@ -266,10 +266,16 @@ class UserController {
     TextEditingController passwordController,
     TextEditingController typeController,
   ) async {
+    dynamic urlImageProfile;
+
     if (_key.currentState!.validate() && imageUpload != null) {
-      // ToDo : reutrn False y image profile.
-      dynamic urlImageProfile =
-          await updateImage(userProvider.users['urlImage'], imageUpload);
+      // Si el path de la foto de usuario contiene googleusercontent entonces esta no exite en nuestra base de datos por lo tanto debemos crearla.
+      if (userProvider.users['urlImage'].contains('googleusercontent')) {
+        urlImageProfile = await uploadImage(imageUpload!);
+      } else {
+        urlImageProfile =
+            await updateImage(userProvider.users['urlImage'], imageUpload);
+      }
 
       print(
           'Este es el nombre actualizado de NameController.text ${nameController.text}');

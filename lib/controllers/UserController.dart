@@ -7,6 +7,7 @@ import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:barvip_app/views/pages/ProfilePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
@@ -21,14 +22,13 @@ class UserController {
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      final Map<String, dynamic> existingUser =
-          await getUserByEmail(data['email']);
+      final Map<String, dynamic> existingUser =await getUserByEmail(data['email']);
       if (existingUser['success'] == true) {
         return {'success': false, 'state': 409};
       } else {
-        DocumentReference docRef =
-            await FirebaseFirestore.instance.collection(collection).add(data);
-        await docRef.update({'id': docRef.id});
+       print("Este es el data ${data}");
+        await FirebaseFirestore.instance.collection(collection).add(data);
+        /* await docRef.update({'id': docRef.id}); */
         return {'success': true, 'state': 200};
       }
     } catch (e) {
@@ -72,8 +72,8 @@ class UserController {
       String? value, TextEditingController passwordController) {
     validateField(value);
 
-    if (value!.length < 6) {
-      return ' La contraseña debe tener al menos 6 caracteres';
+    if (value!.length < 8) {
+      return ' La contraseña debe tener al menos 8 caracteres';
     }
     if (value != passwordController.text) {
       return 'Las contraseñas no coinciden';
@@ -81,37 +81,48 @@ class UserController {
 
     return null;
   }
+Future<bool> loginFirebase(String email, String password,
+    BuildContext context, UserProvider userProvider) async {
+  try {
+    // Inicia sesión con Firebase Auth
+    auth.UserCredential userCredential = await auth.FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
 
-  Future<bool> loginFirebase(String email, String password,
-      BuildContext context, UserProvider userProvider) async {
-    //Bandera para saber si el usuario fue encontrado
-    bool userFound = false;
+    auth.User? firebaseUser = userCredential.user;
+    print("El usuario de firebase user es ${firebaseUser}");
 
-    // Primera consulta a la collecion de clientes
+    if (firebaseUser != null) {
+      // Consulta a la colección de usuarios
+      print("Este es el id de calicheeeeee${firebaseUser.uid}");
 
-    QuerySnapshot querySnapshot1 =
-        await FirebaseFirestore.instance.collection(collection).get();
-    List<DocumentSnapshot> docs1 = querySnapshot1.docs;
+      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+          .collection(collection)
+          .where('id', isEqualTo: firebaseUser.uid)
+          .get();
 
-    List<User?> users = docs1.map((doc) {
-      return User(
-          id: doc['id'],
-          name: doc['name'],
-          lastName: doc['lastName'],
-          email: doc['email'],
-          password: doc['password'],
-          typeUser: doc['typeUser'],
-          urlImage: doc['urlImage']);
-    }).toList();
+      List<DocumentSnapshot> docs = querySnapshot.docs;
 
-    print('Este es el primer usuario de la lista ${users[0]?.name}');
+      if (docs.isNotEmpty) {
+        DocumentSnapshot userDoc = docs.first;
+        print("USERDOCCCCCCCCCCCCCC ${userDoc.exists}");
 
-    if (users.isNotEmpty) {
-      for (var user in users) {
-        if (user?.email == email && user?.password == password) {
-          userProvider.userFromDb(user!);
+        if (userDoc.exists) {
+          print("Entre al condicional el usuario existe ${userDoc}");
+          User user = User(
+            id: userDoc['id'],
+            name: userDoc['name'],
+            lastName: userDoc['lastName'],
+            email: userDoc['email'],
+            password: userDoc['password'],
+            typeUser: userDoc['typeUser'],
+            urlImage: userDoc['urlImage']
+          );
 
-          if (user?.typeUser == 'client') {
+          userProvider.userFromDb(user);
+
+          if (user.typeUser == 'client') {
             Navigator.of(context).push(MaterialPageRoute(
               builder: (context) => DashBoardBarberPage(),
             ));
@@ -120,14 +131,17 @@ class UserController {
               builder: (context) => DashBoardBarberPage(),
             ));
           }
-          // si se encuentra el usuario
-          userFound = true;
+
+          return true;
         }
       }
-      // Aqui se busca si el usuario es barbero
     }
-    return userFound;
+  } on auth.FirebaseAuthException catch (e) {
+    print(e.message);
   }
+
+  return false;
+}
 
   void validateFieldLogin(String? email, String? password, BuildContext context,
       UserProvider userProvider) async {
@@ -191,7 +205,7 @@ class UserController {
     }
   }
 
-  void registerUser(
+/*   void registerUser(
     context,
     imageUpload,
     GlobalKey<FormState> _key,
@@ -219,6 +233,87 @@ class UserController {
     if (imageUpload == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         myStyles.snackbar("Plese select an image", Colors.red),
+      );
+    }
+  }
+ */
+/* void registerUser(
+    context,
+    imageUpload,
+    GlobalKey<FormState> _key,
+    TextEditingController nameController,
+    TextEditingController lastNameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController typeController,
+  ) async {
+    if (_key.currentState!.validate() && imageUpload != null) {
+      final dynamic urlClient = await uploadImage(imageUpload!);
+        String name =nameController.text;
+        String lastName=lastNameController.text;
+        String email= emailController.text;
+        String password= passwordController.text;
+        String typeUser= typeController.text;
+        String urlImage= urlClient;
+   
+
+      final Map<String, dynamic> response = await _authController.registerWithEmailPassword(
+          email, password, name, lastName, typeUser, urlImage); //Esta funcion responde un Map con succes y state
+      logicUsers(response, context);
+    }
+    if (imageUpload == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        myStyles.snackbar("Plese select an image", Colors.red),
+      );
+    }
+  } */
+
+  void registerUser(
+    context,
+    imageUpload,
+    GlobalKey<FormState> _key,
+    TextEditingController nameController,
+    TextEditingController lastNameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController typeController,
+  ) async {
+    if (_key.currentState!.validate() && imageUpload != null) {
+      final dynamic urlClient = await uploadImage(imageUpload!);
+
+      try {
+        auth.UserCredential userCredential = await auth.FirebaseAuth.instance
+            .createUserWithEmailAndPassword(
+                email: emailController.text, password: passwordController.text);
+
+        // Una vez que el usuario se ha registrado correctamente, podemos añadir sus datos a Firestore
+        print("id firebase--------------------------------------${userCredential.user!.uid}"); // Imprimimos el UID del usuario (opcional
+        User newUser = User(
+          id: userCredential.user!.uid, // Aquí guardamos el UID del usuario
+          name: nameController.text,
+          lastName: lastNameController.text,
+          email: emailController.text,
+          password: passwordController.text,
+          typeUser: typeController.text,
+          urlImage: urlClient,
+        );
+
+        final Map<String, dynamic> response = await saveData(newUser.toJson());
+
+        logicUsers(response, context);
+      } on auth.FirebaseAuthException catch (e) {
+        if (e.code == 'weak-password') {
+          print('The password provided is too weak.');
+        } else if (e.code == 'email-already-in-use') {
+          print('The account already exists for that email.');
+        }
+      } catch (e) {
+        print(e);
+      }
+    }
+    if (imageUpload == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        myStyles.snackbar("Please select an image", Colors.red),
       );
     }
   }

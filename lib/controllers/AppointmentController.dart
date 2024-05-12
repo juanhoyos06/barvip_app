@@ -1,4 +1,5 @@
 import 'package:barvip_app/controllers/UserProvider.dart';
+import 'package:barvip_app/utils/MyStyles.dart';
 import 'package:barvip_app/models/Appointment.dart';
 import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/views/pages/BarberPage.dart';
@@ -9,6 +10,7 @@ import 'package:google_fonts/google_fonts.dart';
 FirebaseFirestore db = FirebaseFirestore.instance;
 
 const String collection = 'appointment';
+MyStyles myStyles = MyStyles();
 
 class AppointmentController {
   createAppointment(
@@ -182,14 +184,14 @@ class AppointmentController {
   answers(response, context) {
     if (response['success'] == true && response['operation'] == 'delete') {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister(
+        myStyles.snackbar(
             "Congratulation!, you appointment is deleted", Colors.green),
       );
       Navigator.of(context).pop();
     }
     if (response['success'] == true && response['operation'] == 'create') {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister(
+        myStyles.snackbar(
             "Congratulations, your appointment was created successfully ",
             Colors.green),
       );
@@ -197,7 +199,7 @@ class AppointmentController {
     }
     if (response['success'] == true && response['operation'] == 'update') {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister(
+        myStyles.snackbar(
             "Congratulations, your appointment was updated successfully ",
             Colors.green),
       );
@@ -205,17 +207,17 @@ class AppointmentController {
     }
     if (response['success'] == false && response['state'] == 409) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Error in creating your appointment", Colors.red),
+        myStyles.snackbar("Error in creating your appointment", Colors.red),
       );
     }
     if (response['success'] == false && response['state'] == 410) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Failed to update your appointment", Colors.red),
+        myStyles.snackbar("Failed to update your appointment", Colors.red),
       );
     }
     if (response['success'] == false && response['state'] == 500) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("Error in data base", Colors.red),
+        myStyles.snackbar("Error in data base", Colors.red),
       );
     }
   }

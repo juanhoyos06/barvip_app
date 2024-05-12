@@ -337,7 +337,7 @@ class UserController {
     }
     if (response['state'] == 409) {
       ScaffoldMessenger.of(context).showSnackBar(
-        snackbarRegister("The email already exists", Colors.red),
+        myStyles.snackbar("The email already exists", Colors.red),
       );
     }
     if (response['success'] == false) {
@@ -352,5 +352,10 @@ class UserController {
         .collection(collection)
         .where('typeUser', isEqualTo: 'barber')
         .snapshots();
+  }
+
+  getUser(String id) async {
+    DocumentSnapshot user = await db.collection(collection).doc(id).get();
+    return user.data();
   }
 }

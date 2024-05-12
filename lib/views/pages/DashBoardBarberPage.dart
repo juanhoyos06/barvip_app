@@ -1,14 +1,17 @@
 import 'package:barvip_app/controllers/UserController.dart';
+import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/pages/listAppoinments.dart';
 import 'package:barvip_app/views/widget/CardView.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
-import 'package:barvip_app/views/widget/NavigationBarView.dart';
+import 'package:barvip_app/views/widget/NavigationBarberView.dart';
+import 'package:barvip_app/views/widget/NavigationClientView.dart';
 import 'package:barvip_app/views/pages/ProfilePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class DashBoardBarberPage extends StatefulWidget {
   const DashBoardBarberPage({super.key});
@@ -25,23 +28,45 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // Custom Navigation Bar esta en el archivo NavigationBarView.dart
-      bottomNavigationBar: CustomNavigationBar(
-        currentPageIndex: currentPageIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-      ),
-      backgroundColor: MyColors.BackgroundColor,
-      // Aqui colocan las paginas que quieren mostrar
-      body: <Widget>[
-        BarbersGrid(),
-        ListAppoinments(),
-        ProfilePage()
-      ][currentPageIndex],
+    return Consumer<UserProvider>(
+      builder: (_, userProvider, context) {
+        return userProvider.users['typeUser'] == 'client'
+            ? Scaffold(
+                // Custom Navigation Bar esta en el archivo NavigationBarView.dart
+                bottomNavigationBar: CustomNavigationClient(
+                  currentPageIndex: currentPageIndex,
+                  onDestinationSelected: (int index) {
+                    setState(() {
+                      currentPageIndex = index;
+                    });
+                  },
+                ),
+                backgroundColor: MyColors.BackgroundColor,
+                // Aqui colocan las paginas que quieren mostrar
+                body: <Widget>[
+                  BarbersGrid(),
+                  ListAppoinments(),
+                  ProfilePage()
+                ][currentPageIndex],
+              )
+            : Scaffold(
+                // Custom Navigation Bar esta en el archivo NavigationBarView.dart
+                bottomNavigationBar: CustomNavigationBarber(
+                  currentPageIndex: currentPageIndex,
+                  onDestinationSelected: (int index) {
+                    setState(() {
+                      currentPageIndex = index;
+                    });
+                  },
+                ),
+                backgroundColor: MyColors.BackgroundColor,
+                // Aqui colocan las paginas que quieren mostrar
+                body: <Widget>[
+                  ListAppoinments(),
+                  ProfilePage()
+                ][currentPageIndex],
+              );
+      },
     );
   }
 

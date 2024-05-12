@@ -19,6 +19,15 @@ class AppoinmentView extends StatefulWidget {
 class _AppoinmentViewState extends State<AppoinmentView> {
   final UserController _userController = UserController();
 
+  Map<String, dynamic> data = {};
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    data = widget.data;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<UserProvider>(
@@ -98,16 +107,28 @@ class _AppoinmentViewState extends State<AppoinmentView> {
 
   getButtons(UserProvider userProvider) {
     if (userProvider.users['typeUser'] == 'barber') {
-      return Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          ElevatedButton(onPressed: () {}, child: const Text("Show client")),
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.delete, color: Color(0xFFD9AD26)),
-          ),
-        ],
-      );
+      return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+          child: Container(
+            child: ElevatedButton(
+              onPressed: () {
+                Map<String, dynamic> appointment = widget.data;
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) =>
+                      AppoinmentPage(appointment: appointment),
+                ));
+              },
+              child: Text(
+                "Info barber",
+                style: TextStyle(
+                  color: Color(0xFFD9AD26),
+                ),
+              ),
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.black),
+              ),
+            ),
+          ));
     } else {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 8),

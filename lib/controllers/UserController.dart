@@ -20,8 +20,8 @@ class UserController {
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      var existingUser = await getUserByEmail(data['email']);
-      if (existingUser) {
+      final Map<String, dynamic> existingUser = await getUserByEmail(data['email']);
+      if (existingUser['success'] == true) {
         return {'success': false, 'state': 409};
       } else {
         DocumentReference docRef =
@@ -34,13 +34,13 @@ class UserController {
     }
   }
 
-  Future<bool> getUserByEmail(String email) async {
+  Future<Map<String, dynamic>>  getUserByEmail(String email) async {
     QuerySnapshot querySnapshot =
         await db.collection(collection).where('email', isEqualTo: email).get();
     if (querySnapshot.docs.isNotEmpty) {
-      return true;
+      return {'success': true, 'data': querySnapshot.docs.first.data()};
     } else {
-      return false;
+      return {'success': false, 'data': null};
     }
   }
 

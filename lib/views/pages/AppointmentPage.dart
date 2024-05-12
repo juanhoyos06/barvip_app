@@ -231,6 +231,29 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
 
   buttons(UserProvider userProvider, context) {
     if (userProvider.users['typeUser'] == 'barber') {
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          ElevatedButton.icon(
+            onPressed: () async {
+              bool result = await showConfirmationDialog(context);
+              if (result) {
+                final Map<String, dynamic> response = _appointmentController
+                    .deleteAppointment(widget.appointment['id']);
+                _appointmentController.answers(response, context);
+              }
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.red,
+            ),
+            label: const Text(
+              'Cancel',
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      );
     } else {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

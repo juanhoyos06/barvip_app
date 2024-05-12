@@ -22,12 +22,17 @@ class UserController {
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      final Map<String, dynamic> existingUser =await getUserByEmail(data['email']);
+      final Map<String, dynamic> existingUser =
+          await getUserByEmail(data['email']);
       if (existingUser['success'] == true) {
         return {'success': false, 'state': 409};
       } else {
-       print("Este es el data ${data}");
-        await FirebaseFirestore.instance.collection(collection).add(data);
+        print("Este es el data ${data}");
+        // Se guarda el user con el id que esta dentro de los datos
+        await FirebaseFirestore.instance
+            .collection(collection)
+            .doc(data['id'])
+            .set(data);
         /* await docRef.update({'id': docRef.id}); */
         return {'success': true, 'state': 200};
       }
@@ -81,67 +86,68 @@ class UserController {
 
     return null;
   }
-Future<bool> loginFirebase(String email, String password,
-    BuildContext context, UserProvider userProvider) async {
-  try {
-    // Inicia sesión con Firebase Auth
-    auth.UserCredential userCredential = await auth.FirebaseAuth.instance.signInWithEmailAndPassword(
-      email: email,
-      password: password,
-    );
 
-    auth.User? firebaseUser = userCredential.user;
-    print("El usuario de firebase user es ${firebaseUser}");
+  Future<bool> loginFirebase(String email, String password,
+      BuildContext context, UserProvider userProvider) async {
+    try {
+      // Inicia sesión con Firebase Auth
+      auth.UserCredential userCredential =
+          await auth.FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
-    if (firebaseUser != null) {
-      // Consulta a la colección de usuarios
-      print("Este es el id de calicheeeeee${firebaseUser.uid}");
+      auth.User? firebaseUser = userCredential.user;
+      print("El usuario de firebase user es ${firebaseUser}");
 
-      QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-          .collection(collection)
-          .where('id', isEqualTo: firebaseUser.uid)
-          .get();
+      if (firebaseUser != null) {
+        // Consulta a la colección de usuarios
+        print("Este es el id de calicheeeeee${firebaseUser.uid}");
 
-      List<DocumentSnapshot> docs = querySnapshot.docs;
+        QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+            .collection(collection)
+            .where('id', isEqualTo: firebaseUser.uid)
+            .get();
 
-      if (docs.isNotEmpty) {
-        DocumentSnapshot userDoc = docs.first;
-        print("USERDOCCCCCCCCCCCCCC ${userDoc.exists}");
+        List<DocumentSnapshot> docs = querySnapshot.docs;
 
-        if (userDoc.exists) {
-          print("Entre al condicional el usuario existe ${userDoc}");
-          User user = User(
-            id: userDoc['id'],
-            name: userDoc['name'],
-            lastName: userDoc['lastName'],
-            email: userDoc['email'],
-            password: userDoc['password'],
-            typeUser: userDoc['typeUser'],
-            urlImage: userDoc['urlImage']
-          );
+        if (docs.isNotEmpty) {
+          DocumentSnapshot userDoc = docs.first;
+          print("USERDOCCCCCCCCCCCCCC ${userDoc.exists}");
 
-          userProvider.userFromDb(user);
+          if (userDoc.exists) {
+            print("Entre al condicional el usuario existe ${userDoc}");
+            User user = User(
+                id: userDoc['id'],
+                name: userDoc['name'],
+                lastName: userDoc['lastName'],
+                email: userDoc['email'],
+                password: userDoc['password'],
+                typeUser: userDoc['typeUser'],
+                urlImage: userDoc['urlImage']);
 
-          if (user.typeUser == 'client') {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DashBoardBarberPage(),
-            ));
-          } else {
-            Navigator.of(context).push(MaterialPageRoute(
-              builder: (context) => DashBoardBarberPage(),
-            ));
+            userProvider.userFromDb(user);
+
+            if (user.typeUser == 'client') {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => DashBoardBarberPage(),
+              ));
+            } else {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) => DashBoardBarberPage(),
+              ));
+            }
+
+            return true;
           }
-
-          return true;
         }
       }
+    } on auth.FirebaseAuthException catch (e) {
+      print(e.message);
     }
-  } on auth.FirebaseAuthException catch (e) {
-    print(e.message);
-  }
 
-  return false;
-}
+    return false;
+  }
 
   void validateFieldLogin(String? email, String? password, BuildContext context,
       UserProvider userProvider) async {
@@ -287,7 +293,8 @@ Future<bool> loginFirebase(String email, String password,
                 email: emailController.text, password: passwordController.text);
 
         // Una vez que el usuario se ha registrado correctamente, podemos añadir sus datos a Firestore
-        print("id firebase--------------------------------------${userCredential.user!.uid}"); // Imprimimos el UID del usuario (opcional
+        print(
+            "id firebase--------------------------------------${userCredential.user!.uid}"); // Imprimimos el UID del usuario (opcional
         User newUser = User(
           id: userCredential.user!.uid, // Aquí guardamos el UID del usuario
           name: nameController.text,
@@ -363,8 +370,10 @@ Future<bool> loginFirebase(String email, String password,
     dynamic urlImageProfile;
 
     if (_key.currentState!.validate() && imageUpload != null) {
+      print("el formulario es valido e imageUpload tienen algo ${imageUpload}");
       // Si el path de la foto de usuario contiene googleusercontent entonces esta no exite en nuestra base de datos por lo tanto debemos crearla.
       if (userProvider.users['urlImage'].contains('googleusercontent')) {
+        print("entre al cambio de imagen de google");
         urlImageProfile = await uploadImage(imageUpload!);
       } else {
         urlImageProfile =
@@ -373,6 +382,8 @@ Future<bool> loginFirebase(String email, String password,
 
       print(
           'Este es el nombre actualizado de NameController.text ${nameController.text}');
+
+      print("user BEfore update ${userProvider.users}");
 
       User userUpdated = User(
         id: userProvider.users['id'],
@@ -383,6 +394,8 @@ Future<bool> loginFirebase(String email, String password,
         typeUser: typeController.text,
         urlImage: urlImageProfile!,
       );
+
+      print("User updated ${userUpdated.urlImage}");
 
       // Actualizar la información del usuario
       updateData(userUpdated.toJson(), userProvider.users['id']);

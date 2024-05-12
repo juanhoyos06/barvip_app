@@ -22,6 +22,7 @@ class authController {
     String? fullName = credential.user?.displayName;
     List<String>? nameParts = fullName?.split(' ');
     User newUser = User(
+      id: credential.user!.uid,
       name: nameParts?.first ?? 'Default Name',
       lastName: nameParts != null && nameParts.length > 1
           ? nameParts.last
@@ -48,6 +49,7 @@ class authController {
       return;
     } else {
       User newUser = User(
+        id: existingUser['data']['id'],
         name: existingUser['data']['name'],
         lastName: existingUser['data']['lastName'],
         email: existingUser['data']['email'],

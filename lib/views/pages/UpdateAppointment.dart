@@ -6,23 +6,23 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
-class CreateAppointmentPage extends StatefulWidget {
-  final String idBarber;
+class UpdateAppoinment extends StatefulWidget {
+  final Map<String, dynamic> appointment;
 
-  const CreateAppointmentPage({required this.idBarber});
+  const UpdateAppoinment({required this.appointment});
 
   @override
-  State<CreateAppointmentPage> createState() => _CreateAppointmentPageState();
+  State<UpdateAppoinment> createState() => _UpdateAppoinmentState();
 }
 
-class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
+class _UpdateAppoinmentState extends State<UpdateAppoinment> {
   TimeOfDay selectedTime = TimeOfDay.now();
 
   final GlobalKey<FormState> _key = GlobalKey<FormState>();
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final AppointmentController _appointmentControlelr = AppointmentController();
 
-  double TotalPrice = 0;
+  double TotalPrice = 0.0;
 
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
@@ -40,15 +40,19 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     "Hair & Beard Design": 250,
   };
 
-  Map<String, dynamic> servicesButton = {
-    "Haircut": false,
-    "Beard": false,
-    "Eyebrows": false,
-    "Haircut and beard": false,
-    "Beard Design": false,
-    "Hair design": false,
-    "Hair & Beard Design": false,
-  };
+  late Map<String, dynamic> servicesButton;
+
+  @override
+  void initState() {
+    super.initState();
+    _addressController.text = widget.appointment['address'];
+    _dateController.text = widget.appointment['date'];
+    _hourController.text = widget.appointment['hour'];
+    TotalPrice = widget.appointment['price'];
+    _priceController.text = widget.appointment['price'].toString();
+    _suggestionController.text = widget.appointment['suggestion'];
+    servicesButton = widget.appointment['service'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -251,18 +255,18 @@ class _CreateAppointmentPageState extends State<CreateAppointmentPage> {
     return ElevatedButton(
       onPressed: () async {
         final Map<String, dynamic> response =
-            await _appointmentControlelr.createAppointment(
-          _key,
-          _addressController,
-          _dateController,
-          _hourController,
-          servicesButton,
-          _priceController,
-          _suggestionController,
-          userProvider,
-          widget.idBarber,
-        );
+            await _appointmentControlelr.updateAppointment(
+                _key,
+                _addressController,
+                _dateController,
+                _hourController,
+                servicesButton,
+                _priceController,
+                _suggestionController,
+                widget.appointment,
+                widget.appointment["id"]);
         _appointmentControlelr.answers(response, context);
+        Navigator.of(context).pop();
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFD9AD26),

@@ -1,6 +1,6 @@
-
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/utils/MyColors.dart';
+import 'package:barvip_app/views/pages/listAppoinments.dart';
 import 'package:barvip_app/views/widget/CardView.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/widget/NavigationBarView.dart';
@@ -39,7 +39,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
       // Aqui colocan las paginas que quieren mostrar
       body: <Widget>[
         BarbersGrid(),
-        LobbyPage(),
+        ListAppoinments(),
         ProfilePage()
       ][currentPageIndex],
     );

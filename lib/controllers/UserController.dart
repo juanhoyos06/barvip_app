@@ -232,8 +232,7 @@ class UserController {
         urlImage: urlClient,
       );
 
-      final Map<String, dynamic> response = await saveData(
-          newUser.toJson()); //Esta funcion responde un Map con succes y state
+      final Map<String, dynamic> response =await saveData(newUser.toJson());
       logicUsers(response, context);
     }
     if (imageUpload == null) {
@@ -355,79 +354,8 @@ class UserController {
         .snapshots();
   }
 
-  void EditUser(
-    UserProvider userProvider,
-    context,
-    userController,
-    imageUpload,
-    _key,
-    TextEditingController nameController,
-    TextEditingController lastNameController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController typeController,
-  ) async {
-    dynamic urlImageProfile;
-
-    if (_key.currentState!.validate() && imageUpload != null) {
-      print("el formulario es valido e imageUpload tienen algo ${imageUpload}");
-      // Si el path de la foto de usuario contiene googleusercontent entonces esta no exite en nuestra base de datos por lo tanto debemos crearla.
-      if (userProvider.users['urlImage'].contains('googleusercontent')) {
-        print("entre al cambio de imagen de google");
-        urlImageProfile = await uploadImage(imageUpload!);
-      } else {
-        urlImageProfile =
-            await updateImage(userProvider.users['urlImage'], imageUpload);
-      }
-
-      print(
-          'Este es el nombre actualizado de NameController.text ${nameController.text}');
-
-      print("user BEfore update ${userProvider.users}");
-
-      User userUpdated = User(
-        id: userProvider.users['id'],
-        name: nameController.text,
-        lastName: lastNameController.text,
-        email: emailController.text,
-        password: passwordController.text,
-        typeUser: typeController.text,
-        urlImage: urlImageProfile!,
-      );
-
-      print("User updated ${userUpdated.urlImage}");
-
-      // Actualizar la información del usuario
-      updateData(userUpdated.toJson(), userProvider.users['id']);
-      // Actualziar la información del usuario en el provider
-      userProvider.userFromDb(userUpdated);
-      // Enviamos al usuario a la pagina de perfil.
-      Navigator.of(context).pop(MaterialPageRoute(
-        builder: (context) => ProfilePage(),
-      ));
-    }
-    if (imageUpload == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Plese select an image", Colors.red),
-      );
-    }
-  }
-
-  dynamic updateImage(String? url, File image) async {
-    // url es de la imagen que ya exite en la base de datos
-    // una vez se tiene esa referencia se actualiza el path con la nueva imagen.
-    Reference ref = storage.refFromURL(url!);
-    // putFile guarda la nueva imagen en el path de la imagen anterior
-    final UploadTask uploadTask = ref.putFile(image);
-    // indica cuando se completa la subida de la imagen
-    final TaskSnapshot snapshot = await uploadTask.whenComplete(() => true);
-    // retornamos la uri que debemos actualizar en la base de datos del usuario
-    final String uri = await snapshot.ref.getDownloadURL();
-
-    if (snapshot.state == TaskState.success) {
-      return uri;
-    } else {
-      return false;
-    }
+  getUser(String id) async {
+    DocumentSnapshot user = await db.collection(collection).doc(id).get();
+    return user.data();
   }
 }

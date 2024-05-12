@@ -1,10 +1,12 @@
+import 'package:barvip_app/controllers/AuthController.dart';
+import 'package:barvip_app/controllers/Services.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
-
 import 'package:barvip_app/utils/MyColors.dart';
 
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/pages/RegisterPage.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -21,11 +23,13 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   bool _passwordVisible = true;
   UserController _userController = UserController();
+  authController _authController = authController();
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   final UserProvider _userProvider = UserProvider();
+  String? name = "";
 
   @override
   Widget build(BuildContext context) {
@@ -184,6 +188,13 @@ class _LoginPageState extends State<LoginPage> {
               width: double.infinity,
               child: SignInButton(userProvider)),
         ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
+          child: Container(
+              height: 50,
+              width: double.infinity,
+              child: SignInButtonGoogle(userProvider)),
+        ),
         Center(
           child: Padding(
             padding: const EdgeInsets.fromLTRB(0, 14, 0, 0),
@@ -224,6 +235,35 @@ class _LoginPageState extends State<LoginPage> {
             fontSize: 18,
             fontWeight: FontWeight.w400,
             letterSpacing: 0),
+      ),
+    );
+  }
+
+  ElevatedButton SignInButtonGoogle(UserProvider userProvider) {
+    return ElevatedButton.icon(
+      label: Text(
+        'Sign In With Google',
+        style: GoogleFonts.inter(
+            color: Colors.black54,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0),
+      ),
+      icon: Image.network(
+          "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"),
+      onPressed: () async {
+        // Se valida el email y la contrasena ingresada
+        auth.UserCredential credential = await signInWithGoogle();
+        _authController.loginGoogle(credential, context, userProvider);
+        setState(() {
+          name = credential.user?.displayName;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
       ),
     );
   }

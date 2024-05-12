@@ -2,12 +2,11 @@ import 'package:barvip_app/controllers/AuthController.dart';
 import 'package:barvip_app/controllers/Services.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
-import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/pages/RegisterPage.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -244,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
     return ElevatedButton(
       onPressed: () async {
         // Se valida el email y la contrasena ingresada
-        UserCredential credential = await signInWithGoogle();
+        auth.UserCredential credential = await signInWithGoogle();
         _authController.loginGoogle(credential, context, userProvider);
         setState(() {
           name = credential.user?.displayName;

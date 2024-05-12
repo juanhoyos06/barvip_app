@@ -240,7 +240,17 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   ElevatedButton SignInButtonGoogle(UserProvider userProvider) {
-    return ElevatedButton(
+    return ElevatedButton.icon(
+      label: Text(
+        'Sign In With Google',
+        style: GoogleFonts.inter(
+            color: Colors.black54,
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0),
+      ),
+      icon: Image.network(
+          "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"),
       onPressed: () async {
         // Se valida el email y la contrasena ingresada
         auth.UserCredential credential = await signInWithGoogle();
@@ -250,18 +260,10 @@ class _LoginPageState extends State<LoginPage> {
         });
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: MyColors.ButtonColor,
+        backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(25),
         ),
-      ),
-      child: Text(
-        'Sign In With Google Name= $name',
-        style: GoogleFonts.inter(
-            color: Colors.white,
-            fontSize: 18,
-            fontWeight: FontWeight.w400,
-            letterSpacing: 0),
       ),
     );
   }

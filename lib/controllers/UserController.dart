@@ -5,6 +5,7 @@ import 'package:barvip_app/models/User.dart';
 import 'package:barvip_app/utils/MyStyles.dart';
 import 'package:barvip_app/views/pages/DashBoardBarberPage.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
+import 'package:barvip_app/views/pages/ProfilePage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:flutter/material.dart';
@@ -21,8 +22,7 @@ class UserController {
 
   Future<Map<String, dynamic>> saveData(Map<String, dynamic> data) async {
     try {
-      final Map<String, dynamic> existingUser =
-          await getUserByEmail(data['email']);
+      final Map<String, dynamic> existingUser =await getUserByEmail(data['email']);
       if (existingUser['success'] == true) {
         return {'success': false, 'state': 409};
       } else {
@@ -346,5 +346,75 @@ Future<bool> loginFirebase(String email, String password,
         .collection(collection)
         .where('typeUser', isEqualTo: 'barber')
         .snapshots();
+  }
+
+  void EditUser(
+    UserProvider userProvider,
+    context,
+    userController,
+    imageUpload,
+    _key,
+    TextEditingController nameController,
+    TextEditingController lastNameController,
+    TextEditingController emailController,
+    TextEditingController passwordController,
+    TextEditingController typeController,
+  ) async {
+    dynamic urlImageProfile;
+
+    if (_key.currentState!.validate() && imageUpload != null) {
+      // Si el path de la foto de usuario contiene googleusercontent entonces esta no exite en nuestra base de datos por lo tanto debemos crearla.
+      if (userProvider.users['urlImage'].contains('googleusercontent')) {
+        urlImageProfile = await uploadImage(imageUpload!);
+      } else {
+        urlImageProfile =
+            await updateImage(userProvider.users['urlImage'], imageUpload);
+      }
+
+      print(
+          'Este es el nombre actualizado de NameController.text ${nameController.text}');
+
+      User userUpdated = User(
+        id: userProvider.users['id'],
+        name: nameController.text,
+        lastName: lastNameController.text,
+        email: emailController.text,
+        password: passwordController.text,
+        typeUser: typeController.text,
+        urlImage: urlImageProfile!,
+      );
+
+      // Actualizar la información del usuario
+      updateData(userUpdated.toJson(), userProvider.users['id']);
+      // Actualziar la información del usuario en el provider
+      userProvider.userFromDb(userUpdated);
+      // Enviamos al usuario a la pagina de perfil.
+      Navigator.of(context).pop(MaterialPageRoute(
+        builder: (context) => ProfilePage(),
+      ));
+    }
+    if (imageUpload == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        myStyles.snackbar("Plese select an image", Colors.red),
+      );
+    }
+  }
+
+  dynamic updateImage(String? url, File image) async {
+    // url es de la imagen que ya exite en la base de datos
+    // una vez se tiene esa referencia se actualiza el path con la nueva imagen.
+    Reference ref = storage.refFromURL(url!);
+    // putFile guarda la nueva imagen en el path de la imagen anterior
+    final UploadTask uploadTask = ref.putFile(image);
+    // indica cuando se completa la subida de la imagen
+    final TaskSnapshot snapshot = await uploadTask.whenComplete(() => true);
+    // retornamos la uri que debemos actualizar en la base de datos del usuario
+    final String uri = await snapshot.ref.getDownloadURL();
+
+    if (snapshot.state == TaskState.success) {
+      return uri;
+    } else {
+      return false;
+    }
   }
 }

@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
+import 'package:barvip_app/utils/MyColors.dart';
+import 'package:barvip_app/views/pages/LoginPage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -153,6 +155,13 @@ class _EditPageState extends State<EditPage> {
                       height: 50,
                       width: double.infinity,
                       child: updateButton(_key)),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Container(
+                      height: 50,
+                      width: double.infinity,
+                      child: deleteButton(_key)),
                 ),
               ],
             ),
@@ -361,6 +370,86 @@ class _EditPageState extends State<EditPage> {
       ),
       child: Text(
         'Update',
+        style: GoogleFonts.inter(
+            color: Colors.white,
+            fontSize: 18,
+            fontWeight: FontWeight.w400,
+            letterSpacing: 0),
+      ),
+    );
+  }
+
+  ElevatedButton deleteButton(_key) {
+    return ElevatedButton(
+      // imageUpload es el File con el pth de la imagen nueva que se va guardar
+      onPressed: () async {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              backgroundColor: Colors.red,
+              title: Text(
+                'Confirmation',
+                style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0),
+              ),
+              content: Text(
+                'Are you sure of deleting your account?',
+                style: GoogleFonts.inter(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w400,
+                    letterSpacing: 0),
+              ),
+              actions: <Widget>[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      child: Text('Cancel',
+                          style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0)),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    TextButton(
+                      child: Text('Delete',
+                          style: GoogleFonts.inter(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0)),
+                      onPressed: () async {
+                        await userController.deleteUser(userProvider, context);
+                        //Cierra el dialogo
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                          builder: (context) => LoginPage(),
+                        ));
+                      },
+                    ),
+                  ],
+                )
+              ],
+            );
+          },
+        );
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.red,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+      ),
+      child: Text(
+        'Delete Account',
         style: GoogleFonts.inter(
             color: Colors.white,
             fontSize: 18,

@@ -3,7 +3,7 @@ import 'package:barvip_app/controllers/Services.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
-
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
 import 'package:barvip_app/views/pages/RegisterPage.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
@@ -21,6 +21,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
   bool _passwordVisible = true;
   UserController _userController = UserController();
   authController _authController = authController();
@@ -186,7 +187,16 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
               height: 50,
               width: double.infinity,
-              child: SignInButton(userProvider)),
+              child: ValueListenableBuilder(
+                  valueListenable: _isLoading,
+                  builder: (context, isLoading, _) {
+                    if (isLoading) {
+                      return LoadingAnimationWidget.inkDrop(
+                          color: Colors.white, size: 50);
+                    } else {
+                      return SignInButton(userProvider);
+                    }
+                  })),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
@@ -218,9 +228,16 @@ class _LoginPageState extends State<LoginPage> {
   ElevatedButton SignInButton(UserProvider userProvider) {
     return ElevatedButton(
       onPressed: () async {
+        _isLoading.value = true;
         // Se valida el email y la contrasena ingresada
-        _userController.validateFieldLogin(_emailController.text,
-            _passwordController.text, context, userProvider);
+        List<dynamic> result = await _userController.validateFieldLogin(
+            _emailController.text,
+            _passwordController.text,
+            context,
+            userProvider,
+            _isLoading);
+
+        _isLoading.value = result[1];
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: MyColors.ButtonColor,
@@ -252,12 +269,14 @@ class _LoginPageState extends State<LoginPage> {
       icon: Image.network(
           "https://cdn1.iconfinder.com/data/icons/google-s-logo/150/Google_Icons-09-512.png"),
       onPressed: () async {
+        _isLoading.value = true;
         // Se valida el email y la contrasena ingresada
         auth.UserCredential credential = await signInWithGoogle();
-        _authController.loginGoogle(credential, context, userProvider);
+        await _authController.loginGoogle(credential, context, userProvider);
         setState(() {
           name = credential.user?.displayName;
         });
+        _isLoading.value = false;
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Colors.white,

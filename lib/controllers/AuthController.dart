@@ -14,11 +14,8 @@ class authController {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
   final FirebaseFirestore db = FirebaseFirestore.instance;
 
-  void loginGoogle(
-    auth.UserCredential credential,
-    BuildContext context,
-    UserProvider userProvider,
-  ) async {
+  Future<void> loginGoogle(auth.UserCredential credential, BuildContext context,
+      UserProvider userProvider) async {
     String? fullName = credential.user?.displayName;
     List<String>? nameParts = fullName?.split(' ');
     User newUser = User(

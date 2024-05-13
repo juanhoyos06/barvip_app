@@ -87,8 +87,8 @@ class UserController {
     return null;
   }
 
-  Future<bool> loginFirebase(String email, String password,
-      BuildContext context, UserProvider userProvider) async {
+  Future<List<bool>> loginFirebase(String email, String password,
+      BuildContext context, UserProvider userProvider, isLoading) async {
     try {
       // Inicia sesión con Firebase Auth
       auth.UserCredential userCredential =
@@ -133,26 +133,31 @@ class UserController {
                 builder: (context) => DashBoardBarberPage(),
               ));
             } else {
+              isLoading.value = false;
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => DashBoardBarberPage(),
               ));
             }
-
-            return true;
+            print("Voy a retornar true");
+            isLoading.value = false;
+            return [true, isLoading.value];
           }
         }
       }
     } on auth.FirebaseAuthException catch (e) {
       print(e.message);
     }
-
-    return false;
+    print("Voy a retornar false");
+    isLoading.value = false;
+    return [false, isLoading.value];
   }
 
-  void validateFieldLogin(String? email, String? password, BuildContext context,
-      UserProvider userProvider) async {
+  Future<List<dynamic>> validateFieldLogin(String? email, String? password,
+      BuildContext context, UserProvider userProvider, isLoading) async {
     // Bandera para saber si el usuario fue encontrado
-    bool userFound = false;
+
+    List<dynamic> result = [];
+
     // Este es el mensaje de validación que se mostrará en el SnackBar
     String? validationMessage;
     if (email == null || email.isEmpty) {
@@ -174,10 +179,11 @@ class UserController {
       ));
     } else {
       // LoginFireBase retorna true si el usuario fue encontrado.
-      userFound = await loginFirebase(email!, password!, context, userProvider);
+      result = await loginFirebase(
+          email!, password!, context, userProvider, isLoading);
     }
     // Si el usuario no fue encontrado, se muestra un SnackBar
-    if (!userFound) {
+    if (!result[0]) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
@@ -186,6 +192,8 @@ class UserController {
             style: TextStyle(fontWeight: FontWeight.w700),
           )));
     }
+    // en el index 1 se encuentra el valor de isLoading para detener la animacion
+    return result;
   }
 
   Future<XFile?> getImage() async {
@@ -274,7 +282,7 @@ class UserController {
     }
   } */
 
-  void registerUser(
+  Future<void> registerUser(
     context,
     imageUpload,
     GlobalKey<FormState> _key,
@@ -429,5 +437,38 @@ class UserController {
     } else {
       return false;
     }
+  }
+
+  Future<void> deleteUser(UserProvider userProvider, context) async {
+    // Si la imagen del usuario no contiene googleusercontent, si exite en el storage y debemos eliminarla
+    if (!userProvider.users['urlImage'].contains('googleusercontent')) {
+      // Obtén la URL de la imagen del usuario
+      String imageUrl = userProvider.users['urlImage'];
+
+      // Crea una referencia a la imagen
+      Reference ref = FirebaseStorage.instance.refFromURL(imageUrl);
+
+      // Elimina la imagen
+      await ref.delete().catchError((error) {
+        print("Error al eliminar la imagen: $error");
+      });
+    }
+
+    print(
+        "Este es el id del usuario que voy a eliminar ${userProvider.users['id']}");
+    // Elimina el usuario de la base de datos
+    await db.collection(collection).doc(userProvider.users['id']).delete();
+    // Elimina el usuario de Firebase Auth
+    print(
+        "Este es el usuario actual ${auth.FirebaseAuth.instance.currentUser}");
+    await auth.FirebaseAuth.instance.currentUser!.delete();
+
+    Navigator.of(context).push(MaterialPageRoute(
+      builder: (context) => LoginPage(),
+    ));
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      myStyles.snackbar("Account deleted correctly.", Colors.red),
+    );
   }
 }

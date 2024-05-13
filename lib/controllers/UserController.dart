@@ -472,7 +472,7 @@ class UserController {
     ));
 
     ScaffoldMessenger.of(context).showSnackBar(
-      myStyles.snackbar("Account deleted correctly.", Colors.red),
+      myStyles.snackbar("Account deleted correctly.", Colors.green),
     );
   }
 }

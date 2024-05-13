@@ -347,8 +347,7 @@ class _EditPageState extends State<EditPage> {
       // imageUpload es el File con el pth de la imagen nueva que se va guardar
       onPressed: () {
         print('path image$imageUpload');
-        print("");
-        /* 'userProvider: ${userProvider.users}, nameController: $nameController, lastNameController: $lastNameController, emailController: $emailController, passwordController: $passwordController, typeController: $typeController');
+
         userController.EditUser(
           userProvider,
           context,
@@ -360,7 +359,7 @@ class _EditPageState extends State<EditPage> {
           emailController,
           passwordController,
           typeController,
-        ); */
+        );
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xFFD9AD26),

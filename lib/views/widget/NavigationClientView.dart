@@ -1,11 +1,11 @@
 import "package:barvip_app/utils/MyColors.dart";
 import "package:flutter/material.dart";
 
-class CustomNavigationBar extends StatelessWidget {
+class CustomNavigationClient extends StatelessWidget {
   final int currentPageIndex;
   final ValueChanged<int> onDestinationSelected;
 
-  CustomNavigationBar({
+  CustomNavigationClient({
     required this.currentPageIndex,
     required this.onDestinationSelected,
   });

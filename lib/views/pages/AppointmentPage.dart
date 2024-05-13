@@ -35,6 +35,7 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
   @override
   Widget build(BuildContext context) {
     // TODO: implement build
+    print("${widget.appointment['suggestion']} in appoinment page");
     return Consumer<UserProvider>(
       builder: (_, userProvider, child) {
         return Scaffold(
@@ -231,7 +232,7 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
 
   buttons(UserProvider userProvider, context) {
     if (userProvider.users['typeUser'] == 'barber') {
-      Row(
+      return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           ElevatedButton.icon(
@@ -316,22 +317,51 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
       barrierDismissible: false, // user must tap button for close dialog!
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Confirmation"),
-          content:
-              const Text("Are you sure you want to cancel this appointment?"),
+          backgroundColor: Colors.red,
+          title: Text(
+            'Confirmation',
+            style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0),
+          ),
+          content: Text(
+            'Are you sure of deleting your account?',
+            style: GoogleFonts.inter(
+                color: Colors.white,
+                fontSize: 18,
+                fontWeight: FontWeight.w400,
+                letterSpacing: 0),
+          ),
           actions: <Widget>[
-            TextButton(
-              child: const Text('Cancelar'),
-              onPressed: () {
-                Navigator.of(context).pop(false); // Dialog returns false
-              },
-            ),
-            TextButton(
-              child: const Text('Aceptar'),
-              onPressed: () {
-                Navigator.of(context).pop(true); // Dialog returns true
-              },
-            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextButton(
+                  child: Text('Cancelar',
+                      style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0)),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Dialog returns false
+                  },
+                ),
+                TextButton(
+                  child: Text('Aceptar',
+                      style: GoogleFonts.inter(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0)),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Dialog returns true
+                  },
+                ),
+              ],
+            )
           ],
         );
       },

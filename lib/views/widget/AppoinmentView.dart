@@ -112,14 +112,14 @@ class _AppoinmentViewState extends State<AppoinmentView> {
           child: Container(
             child: ElevatedButton(
               onPressed: () {
-                Map<String, dynamic> appointment = widget.data;
+                print(widget.data);
                 Navigator.of(context).push(MaterialPageRoute(
                   builder: (context) =>
-                      AppoinmentPage(appointment: appointment),
+                      AppoinmentPage(appointment: widget.data),
                 ));
               },
               child: Text(
-                "Info barber",
+                "View appointment",
                 style: TextStyle(
                   color: Color(0xFFD9AD26),
                 ),

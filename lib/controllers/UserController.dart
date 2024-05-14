@@ -87,8 +87,9 @@ class UserController {
     return null;
   }
 
-  Future<List<bool>> loginFirebase(String email, String password,
-      BuildContext context, UserProvider userProvider, isLoading) async {
+  Future<bool> loginFirebase(String email, String password,
+      BuildContext context, UserProvider userProvider) async {
+    bool userFound;
     try {
       // Inicia sesión con Firebase Auth
       auth.UserCredential userCredential =
@@ -133,14 +134,13 @@ class UserController {
                 builder: (context) => DashBoardBarberPage(),
               ));
             } else {
-              isLoading.value = false;
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => DashBoardBarberPage(),
               ));
             }
             print("Voy a retornar true");
-            isLoading.value = false;
-            return [true, isLoading.value];
+            userFound = true;
+            return userFound;
           }
         }
       }
@@ -148,16 +148,15 @@ class UserController {
       print(e.message);
     }
     print("Voy a retornar false");
-    isLoading.value = false;
-    return [false, isLoading.value];
+    userFound = false;
+    return userFound;
   }
 
-  Future<List<dynamic>> validateFieldLogin(String? email, String? password,
-      BuildContext context, UserProvider userProvider, isLoading) async {
+  Future<void> validateFieldLogin(String? email, String? password,
+      BuildContext context, UserProvider userProvider) async {
     // Bandera para saber si el usuario fue encontrado
 
-    List<dynamic> result = [];
-
+    bool userFound = false;
     // Este es el mensaje de validación que se mostrará en el SnackBar
     String? validationMessage;
     if (email == null || email.isEmpty) {
@@ -179,11 +178,10 @@ class UserController {
       ));
     } else {
       // LoginFireBase retorna true si el usuario fue encontrado.
-      result = await loginFirebase(
-          email!, password!, context, userProvider, isLoading);
+      userFound = await loginFirebase(email!, password!, context, userProvider);
     }
     // Si el usuario no fue encontrado, se muestra un SnackBar
-    if (!result[0]) {
+    if (!userFound) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
@@ -192,8 +190,6 @@ class UserController {
             style: TextStyle(fontWeight: FontWeight.w700),
           )));
     }
-    // en el index 1 se encuentra el valor de isLoading para detener la animacion
-    return result;
   }
 
   Future<XFile?> getImage() async {
@@ -367,7 +363,7 @@ class UserController {
     return user.data();
   }
 
-  void EditUser(
+  Future<void> EditUser(
     UserProvider userProvider,
     context,
     userController,
@@ -467,6 +463,7 @@ class UserController {
         "Este es el usuario actual ${auth.FirebaseAuth.instance.currentUser}");
     await auth.FirebaseAuth.instance.currentUser!.delete();
 
+    print("Usuario eliminado correctamente");
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => LoginPage(),
     ));

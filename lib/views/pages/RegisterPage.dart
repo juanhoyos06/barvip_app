@@ -2,10 +2,13 @@
 
 import 'dart:ffi';
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/views/pages/LobbyPage.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:barvip_app/views/pages/LoginPage.dart';
 import 'package:image_picker/image_picker.dart';
@@ -46,8 +49,22 @@ class _RegisterPageState extends State<RegisterPage> {
           builder: (context, isLoading, _) {
             if (isLoading) {
               return Center(
-                child: LoadingAnimationWidget.inkDrop(
-                    color: Colors.white, size: 50),
+                child: Stack(
+                  children: [
+                    RegisterPage(context),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: LoadingAnimationWidget.inkDrop(
+                          color: Colors.white, size: 50),
+                    ),
+                  ],
+                ),
               );
             } else {
               return RegisterPage(context);

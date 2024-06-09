@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
@@ -44,7 +46,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                 backgroundColor: MyColors.BackgroundColor,
                 // Aqui colocan las paginas que quieren mostrar
                 body: <Widget>[
-                  BarbersGrid(),
+                  BarbersGrid(userProvider),
                   ListAppoinments(),
                   ProfilePage()
                 ][currentPageIndex],
@@ -70,20 +72,42 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
     );
   }
 
-  Column BarbersGrid() {
+  Column BarbersGrid(UserProvider userProvider) {
     return Column(
       children: [
         Padding(
           padding: EdgeInsetsDirectional.fromSTEB(15, 80, 0, 0),
           child: Align(
             alignment: Alignment.topLeft,
-            child: Text(
-              'Barbers',
-              style: GoogleFonts.sora(
-                  color: Colors.white,
-                  fontSize: 42,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 2),
+            child: Row(
+              children: [
+                Text(
+                  'Barbers',
+                  style: GoogleFonts.sora(
+                      color: Colors.white,
+                      fontSize: 42,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 2),
+                ),
+                Spacer(),
+                GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      userProvider.filter();
+                      // TODO: Implementar la lógica para guardar el like en la base de datos
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        right: 20), // Ajusta el valor según tus necesidades
+                    child: Icon(
+                      Icons.favorite,
+                      color: userProvider.filterFav ? Colors.red : Colors.grey,
+                      size: 50, // Ajusta el valor según tus necesidades
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -124,6 +148,8 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                   // data['name'] = nombre del barbero
                   Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
+                  /* print("Este es el id de sebas ${userProvider.users['id']}");
+                  print("Este es el id del barbero ${data['id']}"); */
                   return HeartCard(
                     data: data,
                   );

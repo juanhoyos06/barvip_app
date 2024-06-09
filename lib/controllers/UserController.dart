@@ -351,12 +351,30 @@ class UserController {
     }
   }
 
-  Stream<QuerySnapshot> usersStream() {
+Stream<QuerySnapshot> usersStream(UserProvider userProvider) {
+  List<String> barberIds = userProvider.favorites.cast<String>();
+  print("ME LAMARONNNNNNNNNNNNNNNNNNNNNNN");
+  if (userProvider.filterFav) {
+    // Si filterFav es verdadero, solo devolvemos los barberos favoritos
+    if (barberIds.isEmpty) {
+      // Si la lista de barberIds está vacía, devolvemos un Stream vacío
+      return Stream.empty();
+    } else {
+      return db
+          .collection(collection)
+          .where('typeUser', isEqualTo: 'barber')
+          .where('id', whereIn: barberIds)
+          .snapshots();
+    }
+  } else {
     return db
         .collection(collection)
         .where('typeUser', isEqualTo: 'barber')
         .snapshots();
   }
+}
+
+
 
   getUser(String id) async {
     DocumentSnapshot user = await db.collection(collection).doc(id).get();

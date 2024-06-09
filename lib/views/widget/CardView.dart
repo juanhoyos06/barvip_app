@@ -67,6 +67,8 @@ class _HeartCardState extends State<HeartCard> {
                               : Colors.grey,
                         ),
                         onPressed: () async {
+                          userProvider.favorites = await favoriteController
+                              .getFavorites(userProvider.users['id']);
                           setState(() {
                             userProvider.changeHeart(widget.data['id']);
                           });
@@ -75,21 +77,15 @@ class _HeartCardState extends State<HeartCard> {
                             idClient: userProvider.users['id'],
                           );
                           print(data.toJson());
-                          
+
                           if (userProvider.isHeartSelected(widget.data['id'])) {
-                            favoriteId =await favoriteController.addFavorite(data.toJson());
-                            userProvider.changeFavId(favoriteId);
-                            print("Este es favorite id en el IF  ${userProvider.favoriteId}");
+                            favoriteId = await favoriteController
+                                .addFavorite(data.toJson());
                           } else {
-                            print("Entre al else de eliminar favorito");
-                            print("Este es favorite id en el else ${userProvider.favoriteId}");
-                            if (userProvider.favoriteId != null) {
-                              print("ENTRE A ELIMINAR");
-                              favoriteController.deleteFavorite(userProvider.favoriteId!);
-                              favoriteId =null; // Reset favoriteId after deleting the favorite
-                            }
+                            print("ENTRE A ELIMINAR");
+                            await favoriteController
+                                .deleteFavorite(widget.data['id']);
                           }
-                          
                         },
                       ),
                     ),

@@ -10,18 +10,17 @@ class FavoriteController {
         await getUserByIdBarber(data['idBarber']);
 
     if (existFavorite['success'] == false) {
-      DocumentReference docRef =
-          await FirebaseFirestore.instance.collection(collection).add(data);
-      String id = docRef.id; // Add the document ID to data
-      docRef.update({'id': id});
+      String id = data['idBarber']; // Use the barber ID as the document ID
+      await FirebaseFirestore.instance.collection(collection).doc(id).set(data);
       return id;
     } else {
       return "";
     }
   }
 
-  void deleteFavorite(String docId) async {
+  Future<Map<String, dynamic>> deleteFavorite(String docId) async {
     await FirebaseFirestore.instance.collection(collection).doc(docId).delete();
+    return {'success': true, 'status': 200};
   }
 
   Future<Map<String, dynamic>> getUserByIdBarber(String emailBarber) async {

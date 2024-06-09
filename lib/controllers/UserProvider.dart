@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 
 class UserProvider extends ChangeNotifier {
   late Map<String, dynamic> users;
+
+  List<dynamic> favorites = [];
   Map<String, bool> hearts = {}; // Mapa para almacenar el estado de cada corazón
   bool filterFav= false;
   String? favoriteId = null;
@@ -11,11 +13,6 @@ class UserProvider extends ChangeNotifier {
     users = user.toJson();
     notifyListeners();
   }
-  changeFavId(String? id){
-    favoriteId = id;
-    notifyListeners();
-  }
-
   // Método para cambiar el estado de un corazón específico
   changeHeart(String id) {
     if (hearts[id] == null) {

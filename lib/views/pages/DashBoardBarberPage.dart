@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:barvip_app/controllers/FavoriteController.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
@@ -24,6 +25,7 @@ class DashBoardBarberPage extends StatefulWidget {
 
 class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
   UserController _userController = UserController();
+  FavoriteController favoriteController = FavoriteController();
   // para saber en que pagina del navigator estamos
   int currentPageIndex = 0;
   // Para el like
@@ -91,10 +93,16 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                 ),
                 Spacer(),
                 GestureDetector(
-                  onTap: () {
+                  onTap: () async {
+                    userProvider.filter();
+                      userProvider.favorites = await favoriteController
+                          .getFavorites(userProvider.users['id']);
+                      print(
+                          "Estos son los favoritos ${userProvider.favorites}");
+                      print(userProvider.filterFav);
+                     
                     setState(() {
-                      userProvider.filter();
-                      // TODO: Implementar la lógica para guardar el like en la base de datos
+                      userProvider.favorites;
                     });
                   },
                   child: Container(
@@ -126,7 +134,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
           ),
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: _userController.usersStream(),
+          stream: _userController.usersStream(userProvider),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -148,6 +156,10 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                   // data['name'] = nombre del barbero
                   Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
+                  if (userProvider.filterFav &&!userProvider.favorites.contains(data['id'])) {
+                    return Container(); // Devuelve un contenedor vacío para los barberos no favoritos
+                  }
+
                   /* print("Este es el id de sebas ${userProvider.users['id']}");
                   print("Este es el id del barbero ${data['id']}"); */
                   return HeartCard(

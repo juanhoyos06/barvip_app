@@ -296,7 +296,7 @@ class UserController {
                 email: emailController.text, password: passwordController.text);
 
         // Una vez que el usuario se ha registrado correctamente, podemos añadir sus datos a Firestore
-        print(
+        print( 
             "id firebase--------------------------------------${userCredential.user!.uid}"); // Imprimimos el UID del usuario (opcional
         User newUser = User(
           id: userCredential.user!.uid, // Aquí guardamos el UID del usuario

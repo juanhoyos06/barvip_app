@@ -45,7 +45,6 @@ class AppointmentController {
           return {"success": false, "state": 409};
         }
       }
-      return {"success": false, "state": 500};
     } catch (e) {
       return {"success": false, "state": 500};
     }

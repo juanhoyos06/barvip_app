@@ -45,9 +45,9 @@ class AppointmentController {
           return {"success": false, "state": 409};
         }
       }
-      return {"success": false, "state": 500};
+      return {"success": false, "state": 500, "operation": "InvalidFields"};
     } catch (e) {
-      return {"success": false, "state": 500};
+      return {"success": false, "state": 500, "operation": "error"};
     }
   }
 
@@ -56,7 +56,7 @@ class AppointmentController {
       db.collection(collection).doc(id).delete();
       return {"success": true, "state": 200, "operation": "delete"};
     } catch (e) {
-      return {"success": false, "state": 500};
+      return {"success": false, "state": 500, "operation": "error"};
     }
   }
 
@@ -90,12 +90,12 @@ class AppointmentController {
               .update(newAppointment.toJson());
           return {"success": true, "state": 200, "operation": "update"};
         } else {
-          return {"success": false, "state": 409};
+          return {"success": false, "state": 410};
         }
       }
-      return {"success": false, "state": 500};
+      return {"success": false, "state": 500, "operation": "InvalidFields"};
     } catch (e) {
-      return {"success": false, "state": 500};
+      return {"success": false, "state": 500, "operation": "error"};
     }
   }
 
@@ -103,6 +103,7 @@ class AppointmentController {
     if (_key.currentState!.validate()) {
       return true;
     }
+    return false;
   }
 
   String? validationField(value) {
@@ -215,9 +216,18 @@ class AppointmentController {
         myStyles.snackbar("Failed to update your appointment", Colors.red),
       );
     }
-    if (response['success'] == false && response['state'] == 500) {
+    if (response['success'] == false &&
+        response['state'] == 500 &&
+        response['operation'] == 'InvalidFields') {
       ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Error in data base", Colors.red),
+        myStyles.snackbar("Invalid fields", Colors.red),
+      );
+    }
+    if (response['success'] == false &&
+        response['state'] == 500 &&
+        response['operation'] == 'error') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        myStyles.snackbar("Error", Colors.red),
       );
     }
   }

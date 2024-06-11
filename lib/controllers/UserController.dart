@@ -56,13 +56,13 @@ class UserController {
   }
 
   String? validateField(value) {
-    return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
+    return value == null || value.isEmpty ? "This field is required" : null;
   }
 
   String? validateName(value) {
     validateField(value);
     if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-      return "Este campo solo debe contener letras";
+      return "This field should only contain letters";
     }
   }
 
@@ -78,10 +78,10 @@ class UserController {
     validateField(value);
 
     if (value!.length < 8) {
-      return ' La contraseña debe tener al menos 8 caracteres';
+      return ' Password must be at least 8 characters';
     }
     if (value != passwordController.text) {
-      return 'Las contraseñas no coinciden';
+      return 'Passwords do not match';
     }
 
     return null;
@@ -185,7 +185,7 @@ class UserController {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            'Credenciales incorrectas',
+            'Incorrect credentials',
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.w700),
           )));
@@ -215,67 +215,6 @@ class UserController {
     }
   }
 
-/*   void registerUser(
-    context,
-    imageUpload,
-    GlobalKey<FormState> _key,
-    TextEditingController nameController,
-    TextEditingController lastNameController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController typeController,
-  ) async {
-    if (_key.currentState!.validate() && imageUpload != null) {
-      final dynamic urlClient = await uploadImage(imageUpload!);
-      User newUser = User(
-        name: nameController.text,
-        lastName: lastNameController.text,
-        email: emailController.text,
-        password: passwordController.text,
-        typeUser: typeController.text,
-        urlImage: urlClient,
-      );
-
-      final Map<String, dynamic> response =await saveData(newUser.toJson());
-      logicUsers(response, context);
-    }
-    if (imageUpload == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Plese select an image", Colors.red),
-      );
-    }
-  }
- */
-/* void registerUser(
-    context,
-    imageUpload,
-    GlobalKey<FormState> _key,
-    TextEditingController nameController,
-    TextEditingController lastNameController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController typeController,
-  ) async {
-    if (_key.currentState!.validate() && imageUpload != null) {
-      final dynamic urlClient = await uploadImage(imageUpload!);
-        String name =nameController.text;
-        String lastName=lastNameController.text;
-        String email= emailController.text;
-        String password= passwordController.text;
-        String typeUser= typeController.text;
-        String urlImage= urlClient;
-   
-
-      final Map<String, dynamic> response = await _authController.registerWithEmailPassword(
-          email, password, name, lastName, typeUser, urlImage); //Esta funcion responde un Map con succes y state
-      logicUsers(response, context);
-    }
-    if (imageUpload == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Plese select an image", Colors.red),
-      );
-    }
-  } */
 
   Future<void> registerUser(
     context,

@@ -1,5 +1,7 @@
 import 'dart:io';
+import 'dart:ui';
 
+import 'package:barvip_app/controllers/AppointmentController.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
@@ -7,6 +9,7 @@ import 'package:barvip_app/views/pages/LoginPage.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
 
 class EditPage extends StatefulWidget {
@@ -20,6 +23,7 @@ class _EditPageState extends State<EditPage> {
   //Variables declaration
   String? dropdownValue;
   File? imageUpload;
+  ValueNotifier<bool> _isLoading = ValueNotifier<bool>(false);
 
   //Controller declaration
   final typeController = TextEditingController();
@@ -56,46 +60,75 @@ class _EditPageState extends State<EditPage> {
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.black,
-      body: SingleChildScrollView(
-        child: Container(
-          margin: EdgeInsets.symmetric(
-              horizontal: MediaQuery.of(context).size.width * 0.08,
-              vertical: MediaQuery.of(context).size.height * 0.1),
-          child: Column(
-            mainAxisSize: MainAxisSize.max,
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                  height: 40,
-                  width: 40,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: Color.fromARGB(255, 28, 33, 39),
-                  ),
-                  child: IconButton(
-                      iconSize: 20,
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      icon: const Icon(
-                        Icons.keyboard_arrow_left,
-                        color: Colors.white,
-                      ))),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                child: Text(
-                  'Update account',
-                  style: GoogleFonts.sora(
-                      color: Colors.white,
-                      fontSize: 42,
-                      fontWeight: FontWeight.w500,
-                      letterSpacing: 0),
+      body: ValueListenableBuilder(
+          valueListenable: _isLoading,
+          builder: (context, isLoading, _) {
+            if (isLoading) {
+              return Center(
+                child: Stack(
+                  children: [
+                    EditPage(context),
+                    BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                      child: Container(
+                        color: Colors.black.withOpacity(0.5),
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.center,
+                      child: LoadingAnimationWidget.inkDrop(
+                          color: Colors.white, size: 50),
+                    ),
+                  ],
                 ),
+              );
+            } else {
+              return EditPage(context);
+            }
+          }),
+    );
+  }
+
+  SingleChildScrollView EditPage(BuildContext context) {
+    return SingleChildScrollView(
+      child: Container(
+        margin: EdgeInsets.symmetric(
+            horizontal: MediaQuery.of(context).size.width * 0.08,
+            vertical: MediaQuery.of(context).size.height * 0.1),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                height: 40,
+                width: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(100),
+                  color: Color.fromARGB(255, 28, 33, 39),
+                ),
+                child: IconButton(
+                    iconSize: 20,
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(
+                      Icons.keyboard_arrow_left,
+                      color: Colors.white,
+                    ))),
+            Padding(
+              padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+              child: Text(
+                'Update account',
+                style: GoogleFonts.sora(
+                    color: Colors.white,
+                    fontSize: 42,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0),
               ),
-              FormsFieldsRegister()
-            ],
-          ),
+            ),
+            FormsFieldsRegister()
+          ],
         ),
       ),
     );
@@ -345,10 +378,11 @@ class _EditPageState extends State<EditPage> {
   ElevatedButton updateButton(_key) {
     return ElevatedButton(
       // imageUpload es el File con el pth de la imagen nueva que se va guardar
-      onPressed: () {
+      onPressed: () async {
         print('path image$imageUpload');
+        _isLoading.value = true;
 
-        userController.EditUser(
+        await userController.EditUser(
           userProvider,
           context,
           userController,
@@ -360,6 +394,8 @@ class _EditPageState extends State<EditPage> {
           passwordController,
           typeController,
         );
+
+        _isLoading.value = false;
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: Color(0xFFD9AD26),
@@ -427,11 +463,6 @@ class _EditPageState extends State<EditPage> {
                               letterSpacing: 0)),
                       onPressed: () async {
                         await userController.deleteUser(userProvider, context);
-                        //Cierra el dialogo
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                          builder: (context) => LoginPage(),
-                        ));
                       },
                     ),
                   ],

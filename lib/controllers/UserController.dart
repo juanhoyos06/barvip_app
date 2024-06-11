@@ -56,13 +56,13 @@ class UserController {
   }
 
   String? validateField(value) {
-    return value == null || value.isEmpty ? "Este campo es obligatorio" : null;
+    return value == null || value.isEmpty ? "This field is required" : null;
   }
 
   String? validateName(value) {
     validateField(value);
     if (!RegExp(r'^[a-zA-Z]+$').hasMatch(value)) {
-      return "Este campo solo debe contener letras";
+      return "This field should only contain letters";
     }
   }
 
@@ -78,17 +78,18 @@ class UserController {
     validateField(value);
 
     if (value!.length < 8) {
-      return ' La contraseña debe tener al menos 8 caracteres';
+      return ' Password must be at least 8 characters';
     }
     if (value != passwordController.text) {
-      return 'Las contraseñas no coinciden';
+      return 'Passwords do not match';
     }
 
     return null;
   }
 
-  Future<List<bool>> loginFirebase(String email, String password,
-      BuildContext context, UserProvider userProvider, isLoading) async {
+  Future<bool> loginFirebase(String email, String password,
+      BuildContext context, UserProvider userProvider) async {
+    bool userFound;
     try {
       // Inicia sesión con Firebase Auth
       auth.UserCredential userCredential =
@@ -133,14 +134,13 @@ class UserController {
                 builder: (context) => DashBoardBarberPage(),
               ));
             } else {
-              isLoading.value = false;
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => DashBoardBarberPage(),
               ));
             }
             print("Voy a retornar true");
-            isLoading.value = false;
-            return [true, isLoading.value];
+            userFound = true;
+            return userFound;
           }
         }
       }
@@ -148,16 +148,15 @@ class UserController {
       print(e.message);
     }
     print("Voy a retornar false");
-    isLoading.value = false;
-    return [false, isLoading.value];
+    userFound = false;
+    return userFound;
   }
 
-  Future<List<dynamic>> validateFieldLogin(String? email, String? password,
-      BuildContext context, UserProvider userProvider, isLoading) async {
+  Future<void> validateFieldLogin(String? email, String? password,
+      BuildContext context, UserProvider userProvider) async {
     // Bandera para saber si el usuario fue encontrado
 
-    List<dynamic> result = [];
-
+    bool userFound = false;
     // Este es el mensaje de validación que se mostrará en el SnackBar
     String? validationMessage;
     if (email == null || email.isEmpty) {
@@ -179,21 +178,18 @@ class UserController {
       ));
     } else {
       // LoginFireBase retorna true si el usuario fue encontrado.
-      result = await loginFirebase(
-          email!, password!, context, userProvider, isLoading);
+      userFound = await loginFirebase(email!, password!, context, userProvider);
     }
     // Si el usuario no fue encontrado, se muestra un SnackBar
-    if (!result[0]) {
+    if (!userFound) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           backgroundColor: Colors.red,
           content: Text(
-            'Credenciales incorrectas',
+            'Incorrect credentials',
             textAlign: TextAlign.center,
             style: TextStyle(fontWeight: FontWeight.w700),
           )));
     }
-    // en el index 1 se encuentra el valor de isLoading para detener la animacion
-    return result;
   }
 
   Future<XFile?> getImage() async {
@@ -219,67 +215,6 @@ class UserController {
     }
   }
 
-/*   void registerUser(
-    context,
-    imageUpload,
-    GlobalKey<FormState> _key,
-    TextEditingController nameController,
-    TextEditingController lastNameController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController typeController,
-  ) async {
-    if (_key.currentState!.validate() && imageUpload != null) {
-      final dynamic urlClient = await uploadImage(imageUpload!);
-      User newUser = User(
-        name: nameController.text,
-        lastName: lastNameController.text,
-        email: emailController.text,
-        password: passwordController.text,
-        typeUser: typeController.text,
-        urlImage: urlClient,
-      );
-
-      final Map<String, dynamic> response =await saveData(newUser.toJson());
-      logicUsers(response, context);
-    }
-    if (imageUpload == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Plese select an image", Colors.red),
-      );
-    }
-  }
- */
-/* void registerUser(
-    context,
-    imageUpload,
-    GlobalKey<FormState> _key,
-    TextEditingController nameController,
-    TextEditingController lastNameController,
-    TextEditingController emailController,
-    TextEditingController passwordController,
-    TextEditingController typeController,
-  ) async {
-    if (_key.currentState!.validate() && imageUpload != null) {
-      final dynamic urlClient = await uploadImage(imageUpload!);
-        String name =nameController.text;
-        String lastName=lastNameController.text;
-        String email= emailController.text;
-        String password= passwordController.text;
-        String typeUser= typeController.text;
-        String urlImage= urlClient;
-   
-
-      final Map<String, dynamic> response = await _authController.registerWithEmailPassword(
-          email, password, name, lastName, typeUser, urlImage); //Esta funcion responde un Map con succes y state
-      logicUsers(response, context);
-    }
-    if (imageUpload == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        myStyles.snackbar("Plese select an image", Colors.red),
-      );
-    }
-  } */
 
   Future<void> registerUser(
     context,
@@ -300,7 +235,7 @@ class UserController {
                 email: emailController.text, password: passwordController.text);
 
         // Una vez que el usuario se ha registrado correctamente, podemos añadir sus datos a Firestore
-        print(
+        print( 
             "id firebase--------------------------------------${userCredential.user!.uid}"); // Imprimimos el UID del usuario (opcional
         User newUser = User(
           id: userCredential.user!.uid, // Aquí guardamos el UID del usuario
@@ -355,19 +290,37 @@ class UserController {
     }
   }
 
-  Stream<QuerySnapshot> usersStream() {
+Stream<QuerySnapshot> usersStream(UserProvider userProvider) {
+  List<String> barberIds = userProvider.favorites.cast<String>();
+  print("ME LAMARONNNNNNNNNNNNNNNNNNNNNNN");
+  if (userProvider.filterFav) {
+    // Si filterFav es verdadero, solo devolvemos los barberos favoritos
+    if (barberIds.isEmpty) {
+      // Si la lista de barberIds está vacía, devolvemos un Stream vacío
+      return Stream.empty();
+    } else {
+      return db
+          .collection(collection)
+          .where('typeUser', isEqualTo: 'barber')
+          .where('id', whereIn: barberIds)
+          .snapshots();
+    }
+  } else {
     return db
         .collection(collection)
         .where('typeUser', isEqualTo: 'barber')
         .snapshots();
   }
+}
+
+
 
   getUser(String id) async {
     DocumentSnapshot user = await db.collection(collection).doc(id).get();
     return user.data();
   }
 
-  void EditUser(
+  Future<void> EditUser(
     UserProvider userProvider,
     context,
     userController,
@@ -467,6 +420,7 @@ class UserController {
         "Este es el usuario actual ${auth.FirebaseAuth.instance.currentUser}");
     await auth.FirebaseAuth.instance.currentUser!.delete();
 
+    print("Usuario eliminado correctamente");
     Navigator.of(context).push(MaterialPageRoute(
       builder: (context) => LoginPage(),
     ));

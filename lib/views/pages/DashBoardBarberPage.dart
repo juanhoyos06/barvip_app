@@ -1,3 +1,6 @@
+import 'dart:math';
+
+import 'package:barvip_app/controllers/FavoriteController.dart';
 import 'package:barvip_app/controllers/UserController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
 import 'package:barvip_app/utils/MyColors.dart';
@@ -22,6 +25,7 @@ class DashBoardBarberPage extends StatefulWidget {
 
 class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
   UserController _userController = UserController();
+  FavoriteController favoriteController = FavoriteController();
   // para saber en que pagina del navigator estamos
   int currentPageIndex = 0;
   // Para el like
@@ -44,7 +48,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                 backgroundColor: MyColors.BackgroundColor,
                 // Aqui colocan las paginas que quieren mostrar
                 body: <Widget>[
-                  BarbersGrid(),
+                  BarbersGrid(userProvider),
                   ListAppoinments(),
                   ProfilePage()
                 ][currentPageIndex],
@@ -70,20 +74,48 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
     );
   }
 
-  Column BarbersGrid() {
+  Column BarbersGrid(UserProvider userProvider) {
     return Column(
       children: [
         Padding(
           padding: EdgeInsetsDirectional.fromSTEB(15, 80, 0, 0),
           child: Align(
             alignment: Alignment.topLeft,
-            child: Text(
-              'Barbers',
-              style: GoogleFonts.sora(
-                  color: Colors.white,
-                  fontSize: 42,
-                  fontWeight: FontWeight.w500,
-                  letterSpacing: 2),
+            child: Row(
+              children: [
+                Text(
+                  'Barbers',
+                  style: GoogleFonts.sora(
+                      color: Colors.white,
+                      fontSize: 42,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 2),
+                ),
+                Spacer(),
+                GestureDetector(
+                  onTap: () async {
+                    userProvider.filter();
+                      userProvider.favorites = await favoriteController
+                          .getFavorites(userProvider.users['id']);
+                      print(
+                          "Estos son los favoritos ${userProvider.favorites}");
+                      print(userProvider.filterFav);
+                     
+                    setState(() {
+                      userProvider.favorites;
+                    });
+                  },
+                  child: Container(
+                    margin: EdgeInsets.only(
+                        right: 20), // Ajusta el valor según tus necesidades
+                    child: Icon(
+                      Icons.favorite,
+                      color: userProvider.filterFav ? Colors.red : Colors.grey,
+                      size: 50, // Ajusta el valor según tus necesidades
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -102,7 +134,7 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
           ),
         ),
         StreamBuilder<QuerySnapshot>(
-          stream: _userController.usersStream(),
+          stream: _userController.usersStream(userProvider),
           builder:
               (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
             if (snapshot.hasError) {
@@ -124,6 +156,12 @@ class _DashBoardBarberPageState extends State<DashBoardBarberPage> {
                   // data['name'] = nombre del barbero
                   Map<String, dynamic> data =
                       document.data() as Map<String, dynamic>;
+                  if (userProvider.filterFav &&!userProvider.favorites.contains(data['id'])) {
+                    return Container(); // Devuelve un contenedor vacío para los barberos no favoritos
+                  }
+
+                  /* print("Este es el id de sebas ${userProvider.users['id']}");
+                  print("Este es el id del barbero ${data['id']}"); */
                   return HeartCard(
                     data: data,
                   );

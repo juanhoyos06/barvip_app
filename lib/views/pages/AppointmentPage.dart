@@ -339,7 +339,7 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
-                  child: Text('Cancelar',
+                  child: Text('Cancel',
                       style: GoogleFonts.inter(
                           color: Colors.white,
                           fontSize: 18,
@@ -350,7 +350,7 @@ class _AppoinmentPageState extends State<AppoinmentPage> {
                   },
                 ),
                 TextButton(
-                  child: Text('Aceptar',
+                  child: Text('Accept',
                       style: GoogleFonts.inter(
                           color: Colors.white,
                           fontSize: 18,

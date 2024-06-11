@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:barvip_app/controllers/AuthController.dart';
 import 'package:barvip_app/controllers/Services.dart';
 import 'package:barvip_app/controllers/UserController.dart';
@@ -37,109 +39,137 @@ class _LoginPageState extends State<LoginPage> {
     // TODO: implement build
     return Scaffold(
         backgroundColor: Colors.black,
-        body: Consumer<UserProvider>(
-          builder: (_, userProvider, child) {
-            return Container(
-              margin: EdgeInsets.symmetric(
-                  horizontal: MediaQuery.of(context).size.width * 0.08,
-                  vertical: MediaQuery.of(context).size.height * 0.1),
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        body: ValueListenableBuilder(
+            valueListenable: _isLoading,
+            builder: (context, isLoading, _) {
+              if (isLoading) {
+                return Center(
+                  child: Stack(
                     children: [
-                      Container(
-                          height: 40,
-                          width: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(100),
-                            color: MyColors.TextInputColor,
-                          ),
-                          child: IconButton(
-                              iconSize: 20,
-                              onPressed: () {
-                                Navigator.of(context).push(MaterialPageRoute(
-                                  builder: (context) => LobbyPage(),
-                                ));
-                              },
-                              icon: const Icon(
-                                Icons.keyboard_arrow_left,
-                                color: Colors.white,
-                              ))),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
-                        child: Text(
-                          'Sign In',
-                          style: GoogleFonts.sora(
-                              color: Colors.white,
-                              fontSize: 42,
-                              fontWeight: FontWeight.w500,
-                              letterSpacing: 0),
+                      LoginPage(context),
+                      BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                        child: Container(
+                          color: Colors.black.withOpacity(0.5),
                         ),
                       ),
-                      Form(key: _formKey, child: FormWidgets(userProvider))
+                      Align(
+                        alignment: Alignment.center,
+                        child: LoadingAnimationWidget.inkDrop(
+                            color: Colors.white, size: 50),
+                      ),
                     ],
                   ),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.max,
-                      children: [
-                        Container(
-                          decoration: const BoxDecoration(
-                              color: MyColors.TextInputColor,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(10),
-                              )),
-                          width: double.infinity,
-                          height: MediaQuery.of(context).size.height * 0.13,
-                          child: Column(
-                            children: [
-                              Text(
-                                'Don\'t have an account yet?',
-                                style: TextStyle(
-                                    color: MyColors.SecondaryColor,
-                                    height: MediaQuery.of(context).size.height *
-                                        0.0035),
-                              ),
-                              OutlinedButton(
-                                  style: ButtonStyle(
-                                    side: MaterialStateProperty.all(BorderSide(
-                                        color: MyColors.ButtonColor)),
-                                    minimumSize: MaterialStateProperty.all(Size(
-                                        MediaQuery.of(context).size.width * 0.8,
-                                        40)),
-                                    backgroundColor: MaterialStateProperty.all(
-                                        MyColors.ButtonColor),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.of(context)
-                                        .push(MaterialPageRoute(
-                                      builder: (context) => RegisterPage(),
-                                    ));
-                                  },
-                                  child: Text(
-                                    'Create Account',
-                                    style: GoogleFonts.inter(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w500,
-                                        letterSpacing: 0),
-                                  ))
-                            ],
-                          ),
-                        )
-                      ],
+                );
+              } else {
+                return LoginPage(context);
+              }
+            }));
+  }
+
+  Consumer<UserProvider> LoginPage(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (_, userProvider, child) {
+        return Container(
+          margin: EdgeInsets.symmetric(
+              horizontal: MediaQuery.of(context).size.width * 0.08,
+              vertical: MediaQuery.of(context).size.height * 0.1),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                      height: 40,
+                      width: 40,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: MyColors.TextInputColor,
+                      ),
+                      child: IconButton(
+                          iconSize: 20,
+                          onPressed: () {
+                            Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => LobbyPage(),
+                            ));
+                          },
+                          icon: const Icon(
+                            Icons.keyboard_arrow_left,
+                            color: Colors.white,
+                          ))),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(0, 24, 0, 0),
+                    child: Text(
+                      'Sign In',
+                      style: GoogleFonts.sora(
+                          color: Colors.white,
+                          fontSize: 42,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0),
                     ),
                   ),
+                  Form(key: _formKey, child: FormWidgets(userProvider))
                 ],
               ),
-            );
-          },
-        ));
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisSize: MainAxisSize.max,
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(
+                          color: MyColors.TextInputColor,
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(10),
+                          )),
+                      width: double.infinity,
+                      height: MediaQuery.of(context).size.height * 0.13,
+                      child: Column(
+                        children: [
+                          Text(
+                            'Don\'t have an account yet?',
+                            style: TextStyle(
+                                color: MyColors.SecondaryColor,
+                                height: MediaQuery.of(context).size.height *
+                                    0.0035),
+                          ),
+                          OutlinedButton(
+                              style: ButtonStyle(
+                                side: MaterialStateProperty.all(
+                                    BorderSide(color: MyColors.ButtonColor)),
+                                minimumSize: MaterialStateProperty.all(Size(
+                                    MediaQuery.of(context).size.width * 0.8,
+                                    40)),
+                                backgroundColor: MaterialStateProperty.all(
+                                    MyColors.ButtonColor),
+                              ),
+                              onPressed: () {
+                                Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => RegisterPage(),
+                                ));
+                              },
+                              child: Text(
+                                'Create Account',
+                                style: GoogleFonts.inter(
+                                    color: Colors.white,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w500,
+                                    letterSpacing: 0),
+                              ))
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Column FormWidgets(UserProvider userProvider) {
@@ -187,16 +217,7 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
               height: 50,
               width: double.infinity,
-              child: ValueListenableBuilder(
-                  valueListenable: _isLoading,
-                  builder: (context, isLoading, _) {
-                    if (isLoading) {
-                      return LoadingAnimationWidget.inkDrop(
-                          color: Colors.white, size: 50);
-                    } else {
-                      return SignInButton(userProvider);
-                    }
-                  })),
+              child: SignInButton(userProvider)),
         ),
         Padding(
           padding: const EdgeInsets.fromLTRB(0, 24, 0, 0),
@@ -229,15 +250,12 @@ class _LoginPageState extends State<LoginPage> {
     return ElevatedButton(
       onPressed: () async {
         _isLoading.value = true;
-        // Se valida el email y la contrasena ingresada
-        List<dynamic> result = await _userController.validateFieldLogin(
-            _emailController.text,
-            _passwordController.text,
-            context,
-            userProvider,
-            _isLoading);
 
-        _isLoading.value = result[1];
+        // Se valida el email y la contrasena ingresada
+        await _userController.validateFieldLogin(_emailController.text,
+            _passwordController.text, context, userProvider);
+        // Se usa future para esperar a que se valide el email y la contrasena y posteriormente realice el inicio de sesion antes de terminar de mostrar la animacion de carga
+        _isLoading.value = false;
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: MyColors.ButtonColor,

@@ -1,6 +1,9 @@
+import 'dart:ui';
+
 import 'package:barvip_app/controllers/CommentController.dart';
 import 'package:barvip_app/controllers/QualifyController.dart';
 import 'package:barvip_app/controllers/UserProvider.dart';
+import 'package:barvip_app/models/Comment.dart';
 import 'package:barvip_app/models/Qualify.dart';
 import 'package:barvip_app/utils/MyColors.dart';
 import 'package:barvip_app/views/pages/CreateAppointmentPage.dart';
@@ -23,15 +26,17 @@ class _BarberPageState extends State<BarberPage> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isHeartSelected = false;
   // TODO: Logica para saber si el barbero es favorito.
-  // final TextEditingController _controller = TextEditingController();
+  final TextEditingController _commentController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
 
   QualifyController qualifyController = QualifyController();
+  CommentController commentController = CommentController();
 
   bool isQualified = true;
   int? _selectedNumber;
   late String averageScore = '';
+
 
   @override
   void initState() {
@@ -45,8 +50,6 @@ class _BarberPageState extends State<BarberPage> {
     double score =
         await qualifyController.getAverageQualify(widget.barber['id']);
 
-    print('SCORE --------------------------------------------$score');
-
     averageScore = score.toStringAsFixed(1);
 
     int qualify = await qualifyController.getSpecificQualify(
@@ -54,6 +57,14 @@ class _BarberPageState extends State<BarberPage> {
     if (qualify != 6) {
       _selectedNumber = qualify;
     }
+
+    String comment = await commentController.getSpecificComment(
+        widget.barber['id'], userProvider.users['id']);
+
+    if (comment.isNotEmpty) {
+      _commentController.text = comment;
+    }
+
     setState(() {});
   }
 
@@ -225,7 +236,7 @@ class _BarberPageState extends State<BarberPage> {
                       letterSpacing: 2,
                     )),
               ),
-              commentForm(),
+              commentForm(context),
             ],
           ),
         ),
@@ -296,8 +307,7 @@ class _BarberPageState extends State<BarberPage> {
                             if (result['success']) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content:
-                                        Text(' Successfully saved data')),
+                                    content: Text(' Successfully saved data')),
                               );
                               await _initializeSelectedNumber();
                             } else {
@@ -319,34 +329,60 @@ class _BarberPageState extends State<BarberPage> {
     );
   }
 
-  Padding commentForm() {
-    return Padding(
-        padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 40, 0),
-        child: Form(
-          child: Column(
-            children: [
-              TextFormField(
-                style: const TextStyle(color: Colors.white),
-                maxLines: 4,
-                decoration: decoration("Enter a comment"),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () {
-                        // TODO: metodo para guardar el comentario
-                      },
-                      child: const Text('Guardar'),
+  Consumer<UserProvider> commentForm(BuildContext context) {
+    return Consumer<UserProvider>(
+      builder: (context, userProvider, child) {
+        return Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(0, 10, 40, 0),
+            child: Form(
+              child: Column(
+                children: [
+                  TextFormField(
+                    controller: _commentController,
+                    style: const TextStyle(color: Colors.white),
+                    maxLines: 4,
+                    decoration: decoration("Enter a comment"),
+                  ),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        ElevatedButton(
+                          onPressed: () async {
+                            Comment comment = Comment(
+                                idClient: userProvider.users['id'],
+                                idBarber: widget.barber['id'],
+                                comment: _commentController.text,
+                                date: DateTime.now().toIso8601String());
+
+                            Map<String, dynamic> result =
+                                await commentController
+                                    .saveData(comment.toJson());
+
+                            if (result['success']) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(' Successfully saved data')),
+                              );
+                              await _initializeSelectedNumber();
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text('Error saving data')),
+                              );
+                            }
+                          },
+                          child: const Text('Guardar'),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ));
+                  )
+                ],
+              ),
+            ));
+      },
+    );
   }
 
   InputDecoration decoration(String hintText) {

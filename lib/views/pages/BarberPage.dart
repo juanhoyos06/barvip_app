@@ -34,15 +34,16 @@ class _BarberPageState extends State<BarberPage> {
   CommentController commentController = CommentController();
 
   bool isQualified = true;
+  List<Comment> _comments = [];
   int? _selectedNumber;
   late String averageScore = '';
-
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _initializeSelectedNumber();
+    _fetchComments();
   }
 
   Future<void> _initializeSelectedNumber() async {
@@ -66,6 +67,14 @@ class _BarberPageState extends State<BarberPage> {
     }
 
     setState(() {});
+  }
+
+  Future<void> _fetchComments() async {
+    List<Comment> comments =
+        await commentController.getCommentsForBarber(widget.barber['id']);
+    setState(() {
+      _comments = comments; // Asignar los comentarios traídos a la lista
+    });
   }
 
   @override
@@ -215,6 +224,24 @@ class _BarberPageState extends State<BarberPage> {
                   )),
               const Padding(
                 padding: EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
+                child: Text('Comments:',
+                    style: TextStyle(
+                      fontFamily: 'Sora',
+                      fontSize: 25,
+                      color: Colors.blueGrey,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 2,
+                    )),
+              ),
+              // const SizedBox(height: 20),
+              Container(
+                height: 100,
+                alignment:
+                    Alignment.topCenter, // Altura específica para el ListView
+                child: listComments(),
+              ),
+              const Padding(
+                padding: EdgeInsetsDirectional.fromSTEB(0, 15, 0, 0),
                 child: Text('Qualify:',
                     style: TextStyle(
                       fontFamily: 'Sora',
@@ -242,6 +269,26 @@ class _BarberPageState extends State<BarberPage> {
         ),
       ],
     );
+  }
+
+
+  Widget listComments() {
+    if (_comments.isEmpty) {
+      return const Center(
+        child: Text('This barber has no reviews yet'),
+      );
+    }
+
+    return ListView.builder(
+        itemCount: _comments.length,
+        itemBuilder: (context, index) {
+          Comment comment = _comments[index];
+          return ListTile(
+              title:
+                  Text(comment.comment, style: TextStyle(color: Colors.white)),
+              subtitle:
+                  Text(comment.date, style: TextStyle(color: Colors.grey)));
+        });
   }
 
   Consumer<UserProvider> qualifyForm(BuildContext context) {
@@ -289,8 +336,6 @@ class _BarberPageState extends State<BarberPage> {
                       children: [
                         ElevatedButton(
                           onPressed: () async {
-                            print(
-                                'Numero seleccionado --------------------------------$_selectedNumber');
                             Qualify qualify = Qualify(
                               idClient: userProvider.users['id'],
                               idBarber: widget.barber['id'],
@@ -307,13 +352,17 @@ class _BarberPageState extends State<BarberPage> {
                             if (result['success']) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(' Successfully saved data')),
+                                  content: Text(' Successfully saved data'),
+                                  backgroundColor: Colors.green,
+                                ),
                               );
                               await _initializeSelectedNumber();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Error saving data')),
+                                  content: Text('Error saving data'),
+                                  backgroundColor: Colors.red,
+                                ),
                               );
                             }
                           },
@@ -363,13 +412,17 @@ class _BarberPageState extends State<BarberPage> {
                             if (result['success']) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text(' Successfully saved data')),
+                                  content: Text(' Successfully saved data'),
+                                  backgroundColor: Colors.green,
+                                ),
                               );
                               await _initializeSelectedNumber();
+                              await _fetchComments();
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                    content: Text('Error saving data')),
+                                    content: Text('Error saving data'),
+                                    backgroundColor: Colors.red),
                               );
                             }
                           },
